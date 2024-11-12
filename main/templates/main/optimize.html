@@ -686,6 +686,37 @@
                         <!-- End of auto-escaping block. -->
                   </div>
                   <!-- End of div for flexbox layout. -->
+                  <div style="margin-top: 30px;"> 
+                        <!-- Added margin-top to create a gap between figure 3 and figure 4 -->
+                        {% autoescape off %}
+                        <!-- Section Title -->
+                        <h3>Rehire and Termination Report</h3>
+                        <!-- Section Description -->
+                        <p>This section presents rehire and termination data.</p>
+                        <div style="width: 100%;">
+                        <!-- Div styled to take up 100% width. -->
+                              <div class="block dark:hidden">
+                              <!-- Div visible only in light mode. -->
+                                    {{ fig4Light }}
+                                    <!-- Placeholder for light mode figure 4. -->
+                              </div>
+                              <div class="hidden dark:block">
+                              <!-- Div visible only in dark mode. -->
+                                    {{ fig4Dark }}
+                                    <!-- Placeholder for dark mode figure 4. -->
+                              </div>
+                        </div>
+                        {% endautoescape %}
+                  </div>
+                  {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                  {% endif %}
             </div>
             <!-- End of div for the entire content section. -->
       </div>

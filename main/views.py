@@ -13,6 +13,7 @@ from django.conf import settings  # Import settings from Django configuration.
 from django.contrib import messages  # Import messages for displaying notifications.
 import plotly.graph_objects as go  # Import Plotly for creating graphs.
 from django.core.mail import send_mail  # Import send_mail function for sending emails.
+import requests
 
 def index(request):    
     if request.method == "POST":  # Check if the request method is POST.
@@ -127,6 +128,8 @@ def view_plan_detail(request, plan_ID, num_months):  # Define a function to view
     status = optimize_plan(plan_ID, num_months)  # Optimize the plan and get the status.
     if status == 1:  # Check if the optimization was successful.
         detail = ProductionPlan.objects.filter(id=plan_ID).values()  # Get the plan details from the database.
+        rehire_termination_data = []  # To store rehire and termination data for API
+
         for x in detail:  # Loop through the plan details.
             total_hiring_cost = 0  # Initialize total hiring cost.
             total_firing_cost = 0  # Initialize total firing cost.
@@ -139,6 +142,11 @@ def view_plan_detail(request, plan_ID, num_months):  # Define a function to view
 
             worker_numbers = [0]  # Initialize list for worker numbers.
             months = ['Start']  # Initialize list for months.
+
+            # New lists for rehire and terminate employees
+            rehire_employees = []  
+            terminate_employees = []
+
             for month in range(1, num_months + 1):  # Loop through each month.
                 demand = x[f'demand{month}'] - (x['numPermanent'] * x['prodPermanent'])  # Calculate the demand for the month.
                 if month == 1:  # Check if it is the first month.
@@ -149,6 +157,15 @@ def view_plan_detail(request, plan_ID, num_months):  # Define a function to view
                 
                 hC = x[f'hiredTemporary{month}'] * x['costHiring']  # Calculate hiring cost for the month.
                 fC = x[f'firedTemporary{month}'] * x['costFiring']  # Calculate firing cost for the month.
+
+                # Calculate the number of employees to rehire and terminate for this month
+                rehire_count = x[f'hiredTemporary{month}']
+                terminate_count = x[f'firedTemporary{month}']
+                
+                # Append rehire and termination counts to lists for each month
+                rehire_employees.append(rehire_count)
+                terminate_employees.append(terminate_count)
+
                 if month != num_months:  # Check if it is not the last month.
                     
                     ihc = x['costHoldingUnit'] * x[f'inventoryMonth{month}']  # Calculate holding cost for the month.
@@ -163,6 +180,36 @@ def view_plan_detail(request, plan_ID, num_months):  # Define a function to view
                 
                 worker_numbers.append(x[f'numberTemporary{month}'])  # Append number of temporary workers to the list.
                 months.append(f'Month {month}')  # Append month name to the list.
+
+                # Collect rehire and termination data for API response
+                rehire_termination_data.append({
+                    'month': month,
+                    'rehire_count': rehire_count,
+                    'terminate_count': terminate_count
+                })
+            
+            # STEP 1: Prepare API Payload
+            api_payload = {
+                'plan_id': plan_ID,
+                'num_months': num_months,
+                'rehire_termination_data': rehire_termination_data
+            }
+            api_url = "#"  # actual endpoint
+            headers = {
+                'Authorization': 'Bearer YOUR_API_TOKEN',  # Add authentication if required
+                'Content-Type': 'application/json'
+            }
+
+            # STEP 2: Send Data to External System
+            try:
+                response = requests.post(api_url, json=api_payload, headers=headers)
+                if response.status_code == 200:  # Check for success
+                    messages.success(request, "Rehire and termination data sent successfully.")
+                else:
+                    messages.error(request, f"Failed to send data: {response.status_code} - {response.text}")
+            except requests.exceptions.RequestException as e:
+                messages.error(request, f"API request failed: {str(e)}")
+
             # FIGURES
             
             # Figure 1 : Total Cost Distribution (Malaysian Ringgit)
@@ -198,6 +245,23 @@ def view_plan_detail(request, plan_ID, num_months):  # Define a function to view
             fig3Dark = go.Figure(data=[go.Scatter(x=months, y=worker_numbers, mode='lines+markers', name="Number of Temporary Workers")])  # Create a line chart for number of temporary workers in dark mode.
             fig3Dark.update_layout(title='Net Number of Temporary Workers per Month', yaxis_title='Net Number of Temporary Workers', template='plotly_dark')  # Update layout of the line chart for dark mode.
 
+            # Figure 4 : Rehire and Termination Numbers per Month
+            rehiring_counts = [x[f'hiredTemporary{month}'] for month in range(1, num_months + 1)]  # Extract rehiring data.
+            termination_counts = [x[f'firedTemporary{month}'] for month in range(1, num_months + 1)]  # Extract termination data.
+
+            fig4Light = go.Figure(data=[
+                go.Bar(name='Rehired Employees', x=months[1:], y=rehiring_counts, marker=dict(color='#00cc96')),  # Rehire data in light mode.
+                go.Bar(name='Terminated Employees', x=months[1:], y=termination_counts, marker=dict(color='#ef553b'))  # Termination data in light mode.
+            ])
+            fig4Light.update_layout(barmode='group', title='Rehire and Termination Numbers per Month', yaxis_title='Number of Employees')
+
+            fig4Dark = go.Figure(data=[
+                go.Bar(name='Rehired Employees', x=months[1:], y=rehiring_counts, marker=dict(color='#00cc96')),  # Rehire data in dark mode.
+                go.Bar(name='Terminated Employees', x=months[1:], y=termination_counts, marker=dict(color='#ef553b'))  # Termination data in dark mode.
+            ])
+            fig4Dark.update_layout(barmode='group', title='Rehire and Termination Numbers per Month', yaxis_title='Number of Employees', template='plotly_dark')
+
+
         return render(request, "main/optimize.html", {  # Render the optimize template with the plan details and figures.
             'detail': detail, 
             'demands': demands, 
@@ -206,14 +270,20 @@ def view_plan_detail(request, plan_ID, num_months):  # Define a function to view
             'firing_costs': firing_costs, 
             'total_hiring_cost': total_hiring_cost, 
             'total_firing_cost': total_firing_cost, 
-            'total_holding_cost': total_holding_cost, 
+            'total_holding_cost': total_holding_cost,
+            'rehire_employees': rehire_employees,  # Added for the template
+            'terminate_employees': terminate_employees,  # Added for the template 
             'fig1Light': fig1Light.to_html(full_html=False),  # Convert fig1Light to HTML for embedding.
             'fig1Dark': fig1Dark.to_html(full_html=False),  # Convert fig1Dark to HTML for embedding.
             'fig2Light': fig2Light.to_html(full_html=False),  # Convert fig2Light to HTML for embedding.
             'fig2Dark': fig2Dark.to_html(full_html=False),  # Convert fig2Dark to HTML for embedding.
             'fig3Light': fig3Light.to_html(full_html=False),  # Convert fig3Light to HTML for embedding.
-            'fig3Dark': fig3Dark.to_html(full_html=False)  # Convert fig3Dark to HTML for embedding.
+            'fig3Dark': fig3Dark.to_html(full_html=False),  # Convert fig3Dark to HTML for embedding.
+            'fig4Light': fig4Light.to_html(full_html=False),  # New rehire/terminate chart for light mode.
+            'fig4Dark': fig4Dark.to_html(full_html=False),  # New rehire/terminate chart for dark mode.
+            'rehire_termination_data': rehire_termination_data  # Added for transparency in UI if needed
         })
+    
     elif status == 0:  # Check if the plan could not be solved.
         messages.error(request, "PLAN COULD NOT BE SOLVED")  # Display an error message.
     elif status == -1:  # Check if the plan is not feasible.
