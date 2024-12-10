@@ -295,11 +295,58 @@ def view_plan_detail(request, plan_ID, num_months):  # Define a function to view
     return redirect('get-plan-list')  # Redirect to the plan list page.
 
 def sensitivity_analysis(request, plan_ID, num_months):  # Function definition with parameters: request, plan_ID, and num_months
-    detail = ProductionPlan.objects.filter(id=plan_ID).values()  # Query the ProductionPlan table for the specified plan_ID and get the values
+    detail = ProductionPlan.objects.filter(id=plan_ID).values().first()  # Get the first result from filtered queryset.
+        
+    if request.method == "POST":  # Check if the request method is POST.
+        detail1 = ProductionPlan.objects.filter(id=plan_ID).values() # Query the ProductionPlan table for the specified plan_ID and get the values
+
+        for x in detail1:  # Iterate over the details of the production plan
+            # Extract relevant values from the production plan details
+            newinputDemands = [int(x[f'demand{i+1}']) for i in range(12)]  # List of demands for each month
+        inputDemand1 = request.POST.get('demand1', newinputDemands[0])
+        inputDemand2 = request.POST.get('demand2',  newinputDemands[1])
+        inputDemand3 = request.POST.get('demand3',  newinputDemands[2])
+        inputDemand4 = request.POST.get('demand4',  newinputDemands[3])
+        inputDemand5 = request.POST.get('demand5', newinputDemands[4])
+        inputDemand6 = request.POST.get('demand6', newinputDemands[5])
+        inputDemand7 = request.POST.get('demand7', newinputDemands[6])
+        inputDemand8 = request.POST.get('demand8', newinputDemands[7])
+        inputDemand9 = request.POST.get('demand9', newinputDemands[8])
+        inputDemand10 = request.POST.get('demand10', newinputDemands[9])
+        inputDemand11 = request.POST.get('demand11', newinputDemands[10])
+        inputDemand12 = request.POST.get('demand12', newinputDemands[11])
+        inputCostHiring = request.POST.get('costHiring')  # Get the hiring cost from the POST request.
+        inputCostFiring = request.POST.get('costFiring')  # 
+        inputProdTemporary = request.POST.get('prodTemporary')
+        inputCostHiring = float(inputCostHiring) if inputCostHiring not in [None, ''] else 0.0
+        inputCostFiring = float(inputCostFiring) if inputCostFiring not in [None, ''] else 0.0
+        inputProdTemporary = float(inputProdTemporary) if inputProdTemporary not in [None, ''] else 0.0
+
+        ProductionPlan.objects.filter(id=plan_ID).update( demand1 = inputDemand1, 
+        demand2 = inputDemand2, 
+        demand3 = inputDemand3, 
+        demand4 = inputDemand4,
+        demand5 = inputDemand5,
+        demand6 = inputDemand6, 
+        demand7 = inputDemand7, 
+        demand8 = inputDemand8,
+        demand9 = inputDemand9,
+        demand10 = inputDemand10, 
+        demand11 = inputDemand11, 
+        demand12 = inputDemand12,
+        costHiring=inputCostHiring, 
+        costFiring=inputCostFiring,
+        prodTemporary=inputProdTemporary, 
+         filled = True) # Update the ProductionPlan with the new values.
+      
+        optimize_plan(plan_ID,num_months)
+    detail = ProductionPlan.objects.filter(id=plan_ID).values() # Query the ProductionPlan table for the specified plan_ID and get the values
+
     adDemands = []  # List to store allowable decrease in demands
     aiDemands = []  # List to store allowable increase in demands
     decreasedDemands = []  # List to store demands after decrease
     increasedDemands = []  # List to store demands after increase
+
     
     for x in detail:  # Iterate over the details of the production plan
         # Extract relevant values from the production plan details
@@ -314,17 +361,16 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
         inputInventoryFinal = int(x['inventoryFinal'])  # Final inventory
         inputOptimalCost = int(x['optimalCost'])  # Optimal cost
 
-        for i in range(1, num_months + 1):  # Loop through each month
+        for loop in range(1, num_months + 1):  # Loop through each month
             original_cost = inputOptimalCost  # Store the original optimal cost
-            original_demand = inputDemands[i-1]  # Store the original demand for the month
+            original_demand = inputDemands[loop-1]  # Store the original demand for the month
             step_size = min(inputProdPermanent, inputProdTemporary)  # Define the perturbation step size
             aiDemand = 0  # Initialize allowable increase in demand
             adDemand = 0  # Initialize allowable decrease in demand
             iteration = 0  # Initialize iteration counter for increase perturbation
             
             while iteration < 100:  # Perform iterative perturbation to increase demand
-                inputDemands[i-1] += step_size  # Increase the demand by step size
-                
+                inputDemands[loop-1] += step_size  # Increase the demand by step size
                 # Define the linear programming problem to minimize cost
                 month = list(range(num_months))
                 monthIHC = list(range(num_months - 1))
@@ -371,11 +417,10 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 
                 iteration += 1  # Increment the iteration counter
 
-            inputDemands[i-1] = original_demand  # Reset the demand to its original value
+            inputDemands[loop-1] = original_demand  # Reset the demand to its original value
             iteration = 0  # Initialize iteration counter for decrease perturbation
-            
             while iteration < 200:  # Perform iterative perturbation to decrease demand
-                inputDemands[i-1] -= step_size  # Decrease the demand by step size
+                inputDemands[loop-1] -= step_size  # Decrease the demand by step size
                 
                 # Define the linear programming problem to minimize cost
                 month = list(range(num_months))
@@ -423,22 +468,26 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 
                 iteration += 1  # Increment the iteration counter
 
-            inputDemands[i-1] = original_demand  # Reset the demand to its original value
-            
+            inputDemands[loop-1] = original_demand  # Reset the demand to its original value
             aiDemands.append(aiDemand)  # Append the allowable increase in demand to the list
             adDemands.append(adDemand)  # Append the allowable decrease in demand to the list
-            increasedDemands.append(inputDemands[i-1] + aiDemand)  # Append the increased demand to the list
-            decreasedDemands.append(inputDemands[i-1] - adDemand)  # Append the decreased demand to the list
-        
+            increasedDemands.append(inputDemands[loop-1] + aiDemand)  # Append the increased demand to the list
+            decreasedDemands.append(inputDemands[loop-1] - adDemand)  # Append the decreased demand to the list
     # Render the sensitivity analysis results in the template
-    return render(request, "main/sensitivity.html", {
-        'detail': detail, 
-        'aiDemands': aiDemands, 
-        'adDemands': adDemands,
-        'increasedDemands': increasedDemands, 
-        'decreasedDemands': decreasedDemands
-    })
-
+        return render(request, "main/sensitivity.html", {
+            'detail': detail, 
+            'aiDemands': aiDemands, 
+            'adDemands': adDemands,
+            'increasedDemands': increasedDemands, 
+            'decreasedDemands': decreasedDemands,
+            'increasedDemands': increasedDemands,
+            'decreasedDemands': decreasedDemands,
+            'inputCostHiring': inputCostHiring,
+            'inputCostFiring': inputCostFiring,
+            'inputProdTemporary': inputProdTemporary,
+            'inputOptimalCost':inputOptimalCost,
+        })
+        
 def optimize_plan(plan_ID, num_months):  # Function definition with parameters: plan_ID and num_months
     detail = ProductionPlan.objects.filter(id=plan_ID).values()  # Query the ProductionPlan table for the specified plan_ID and get the values
     
