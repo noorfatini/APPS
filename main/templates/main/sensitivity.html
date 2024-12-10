@@ -4,10 +4,110 @@
 <!-- Sets the title block to "Details". -->
 {% block content %}
 <!-- Starts the content block. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet" />
 <!-- Link to import the 'Poppins' font from Google Fonts. -->
 <script src="http://cdn.tailwindcss.com"></script>
 <!-- Script to load Tailwind CSS from a CDN. -->
+<head>
+      <!-- Font Awesome -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  </head>
+<style>
+      .highlight-increase {
+          background-color: #c1be19;
+      }
+      .highlight-decrease {
+          background-color: red;
+      }
+   /* Optional: Style for when hovering over the options */
+      select:hover {
+      cursor: pointer;
+      }
+      #saveChanges {
+            background-color: #4CAF50; /* Green background */
+            color: white; /* White text */
+            border: none; /* No border */
+            padding: 12px 20px; /* Padding around the text */
+            text-align: center; /* Align text to center */
+            text-decoration: none; /* Remove underline */
+            display: inline-block; /* Make the button inline-block */
+            font-size: 16px; /* Font size */
+            margin: 10px 0; /* Margin to separate the button */
+            cursor: pointer; /* Change cursor on hover */
+            border-radius: 8px; /* Rounded corners */
+            transition: background-color 0.3s; /* Smooth transition on hover */
+        }
+
+        /* Hover effect for the button */
+        #saveChanges:hover {
+            background-color: #45a049; /* Darker green on hover */
+        }
+
+        /* Focus state styling */
+        #saveChanges:focus {
+            outline: none; /* Remove outline on focus */
+            box-shadow: 0 0 10px rgba(72, 160, 87, 0.6); /* Focus shadow effect */
+        }
+        .worker-cost-table body {
+            font-family: Arial, sans-serif;
+            background-color: #2c2c2c; /* Dark background */
+            color: #f1f1f1; /* Light text for readability */
+            margin: 20px;
+        }
+
+     /* Scoped styles for worker-cost-table */
+.worker-cost-table {
+    width: 90%;
+    border-collapse: collapse;
+    margin: 20px auto;
+    text-align: left;
+    background-color: #6B7280; /* Dark gray table background */
+    color: #f1f1f1; /* Light text color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+}
+
+.worker-cost-table th, 
+.worker-cost-table td {
+    border: 1px solid #555; /* Slightly lighter border */
+    padding: 12px; /* Increased padding for better readability */
+}
+
+.worker-cost-table th {
+    background-color: #1a0c36; /* Dark header */
+    color: #f1f1f1; /* Light text color in header */
+    font-weight: bold;
+}
+
+.worker-cost-table tr:nth-child(even) {
+    background-color: #4a4a4a; /* Slightly lighter row for contrast */
+}
+
+.worker-cost-table tr:hover {
+    background-color: #616161; /* Highlight on hover */
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+/* Specific styling for input fields within the table */
+.worker-cost-table input[type="number"] {
+    background-color: #ccc; /* Light background for inputs */
+    color: #333; /* Dark text for input */
+    padding: 8px; /* Some padding around the input */
+    border: 1px solid #999; /* Border to differentiate from table */
+    border-radius: 4px; /* Slightly rounded corners */
+    width: calc(100% - 16px); /* Full width minus padding */
+}
+
+.worker-cost-table input[type="number"]:focus {
+    border-color: #1a0c36; /* Change border color on focus */
+    background-color: #e0e0e0; /* Slightly different background on focus */
+    outline: none; /* Remove default outline */
+}
+  </style>
+  
 <body>
 <!-- Starts the body section of the HTML. -->
       <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -22,49 +122,95 @@
                         <!-- Displays the plan name from the 'x' object. -->
                   </h1>
                   <!-- End of heading. -->
+                 
                   <div class="relative overflow-x-auto border border-gray-200 dark:border-gray-700">
                   <!-- Div container with relative positioning, horizontal overflow handling, border, and dark mode support. -->
+                  <form method="post">
+                    {% csrf_token %}
                         <table class="w-full text-sm text-center text-black rtl:text-right dark:text-white ">
                         <!-- Table with full width, small text size, centered text, right-to-left text alignment, and dark mode support. -->
                               <thead class="text-xs font-medium text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-white">
                               <!-- Table header with small text size, medium font weight, black text, uppercase, background color, and dark mode support. -->
                                     <tr>
                                     <!-- Table row for header title. -->
-                                          <td colspan="4" scope="col" class="p-2 text-sm font-extrabold border dark:border-gray-700">Sensitivity Analysis Results</td>
+                                          <td colspan="8" scope="col" class="p-2 text-sm font-extrabold border dark:border-gray-700">Sensitivity Analysis Results</td>
                                           <!-- Table cell spanning 4 columns, with padding, small text size, extra-bold font, border, and dark mode support, displaying "Sensitivity Analysis Results". -->
                                     </tr>
                                     <!-- End of table row for header title. -->
                                     <tr>
-                                    <!-- Table row for column headers. -->
-                                          <td scope="col" class="p-2">Month</td>
+                                        <!-- Table row for column headers. -->
+                                        <td scope="col" class="p-2">Month</td>
                                           <!-- Table cell with padding, displaying "Month". -->
-                                          <td scope="col" class="p-2">Current Demand</td>
-                                          <!-- Table cell with padding, displaying "Current Demand". -->
-                                          <td scope="col" class="p-2">Allowable Increase on Demand</td>
-                                          <!-- Table cell with padding, displaying "Allowable Increase on Demand". -->
-                                          <td scope="col" class="p-2">Allowable Decrease on Demand</td>
-                                          <!-- Table cell with padding, displaying "Allowable Decrease on Demand". -->
-                                    </tr>
+                                        <td scope="col" class="p-2">Current Demand</td>      
+                                          <th scope="col" class="p-2">Allowable Increase on Demand<span title="Allowable increase shows how much demand can increase without affecting the supply constraints.">❓</span></th>
+                                          <!-- Table cell with padding, displaying "Allowable Increase on Demand" with tooltip. -->
+                                          
+                                          <th scope="col" class="p-2">Allowable Decrease on Demand<span title="Allowable decrease shows how much demand can decrease without affecting the minimum operational threshold.">❓</span></th>
+                                          <!-- Table cell with padding, displaying "Allowable Decrease on Demand" with tooltip. -->
+                                          
+                                      </tr>
                                     <!-- End of table row for column headers. -->
                               </thead>
                               <!-- End of table header. -->
+                              <script>
+                               
+                                    // Update demand values
+                                    document.querySelectorAll('.editable').forEach(function (editable) {
+                                        editable.addEventListener('blur', function () {
+                                            var updatedValue = editable.innerText;  // Get the updated value from the cell
+                                            var column = editable.getAttribute('data-column');  // Get the column name
+                                            var id = editable.getAttribute('data-id');  // Get the row ID
+
+                                            updateDatabase(id, column, updatedValue);  // Call the function to send data to the server
+                                        });
+                                    });
+
+                                    // Function to send data to the server using AJAX
+                                    function updateDatabase(id, column, value) {
+                                        fetch('/input_variable/', {  // Adjust the URL to your update endpoint
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value  // Include CSRF token if using Django
+                                            },
+                                            body: JSON.stringify({
+                                                id: id,
+                                                column: column,
+                                                value: value
+                                            })
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            console.log('Data successfully updated:', data);
+                                        })
+                                        .catch(error => {
+                                            console.error('Error:', error);
+                                        });
+                                    }
+
+
+
+
+                                  </script>
+                                  
                               <tbody>
                               <!-- Start of table body. -->
-                                    {% if x.length >= 1 %}
-                                    <!-- Condition to check if 'x.length' is at least 1. -->
-                                    <tr class="border odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:border-gray-700">
-                                    <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
-                                          <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">1</th>
-                                          <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "1". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand1 }}</td>
-                                          <!-- Table cell with padding, border, and dark mode support, displaying the first month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.0 }} ({{ increasedDemands.0 }})</td>
-                                          <!-- Table cell with padding, border, and dark mode support, displaying the first month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.0 }} ({{ decreasedDemands.0 }})</td>
-                                          <!-- Table cell with padding, displaying the first month's allowable decrease in demand and the decreased demand. -->
-                                    </tr>
-                                    <!-- End of table row for the first month. -->
-                                    {% endif %}
+                               
+                              <tr>
+                              
+    
+                                {% if x.length >= 1 %}
+                                <tr class="border odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:border-gray-700">
+                                    <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">1</th>
+                                    <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand1" id="demand1"  data-column="demand1" data-id="{{ x.id }}" data-original-value="{{ x.demand1 }}" id="demand1-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand1}} name="demand1" id="demand1" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                    </td>
+
+                                    <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.0 != 0 %}highlight-increase{% endif %}" id="aiDemands-{{ x.id }}">{{ aiDemands.0 }} ({{ increasedDemands.0 }})</td>
+                                    <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.0 != 0 %}highlight-decrease{% endif %}" id="adDemands-{{ x.id }}">{{ adDemands.0 }} ({{ decreasedDemands.0 }})</td>
+                                   
+                                </tr>
+                                {% endif %}
+                                
                                     <!-- End of condition to check if 'x.length' is at least 1. -->
                                     {% if x.length >= 2 %}
                                     <!-- Condition to check if 'x.length' is at least 2. -->
@@ -72,12 +218,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">2</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "2". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand2 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" data-column="demand2" data-id="{{ x.id }}">   <input required min="0" type="number" step="1" value={{x.demand2}} name="demand2" id="demand2" placeholder="Demand for Month 2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the second month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.1 }} ({{ increasedDemands.1 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.1 != 0 %}highlight-increase{% endif %}">{{ aiDemands.1 }} ({{ increasedDemands.1 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the second month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.1 }} ({{ decreasedDemands.1 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.1 != 0 %}highlight-decrease{% endif %}">{{ adDemands.1 }} ({{ decreasedDemands.1 }})</td>
                                           <!-- Table cell with padding, displaying the second month's allowable decrease in demand and the decreased demand. -->
+                                          
                                     </tr>
                                     <!-- End of table row for the second month. -->
                                     {% endif %}
@@ -88,12 +236,15 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">3</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "3". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand3 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand3" id="demand3"  data-column="demand3" data-id="{{ x.id }}" data-original-value="{{ x.demand3 }}" id="demand3-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand3}} name="demand3" id="demand3" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
+      
                                           <!-- Table cell with padding, border, and dark mode support, displaying the third month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.2 }} ({{ increasedDemands.2 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.2 != 0 %}highlight-increase{% endif %}">{{ aiDemands.2 }} ({{ increasedDemands.2 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the third month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.2 }} ({{ decreasedDemands.2 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.2 != 0 %}highlight-decrease{% endif %}">{{ adDemands.2 }} ({{ decreasedDemands.2 }})</td>
                                           <!-- Table cell with padding, displaying the third month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row for the third month. -->
                                     {% endif %}
@@ -104,12 +255,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">4</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "4". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand4 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand4" id="demand4"  data-column="demand4" data-id="{{ x.id }}" data-original-value="{{ x.demand4 }}" id="demand4-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand4}} name="demand4" id="demand4" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the fourth month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.3 }} ({{ increasedDemands.3 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.3 != 0 %}highlight-increase{% endif %}">{{ aiDemands.3 }} ({{ increasedDemands.3 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the fourth month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.3 }} ({{ decreasedDemands.3 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.3 != 0 %}highlight-decrease{% endif %}">{{ adDemands.3 }} ({{ decreasedDemands.3 }})</td>
                                           <!-- Table cell with padding, displaying the fourth month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row for the fourth month. -->
                                     {% endif %}
@@ -120,11 +273,12 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">5</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "5". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand5 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand5" id="demand5"  data-column="demand5" data-id="{{ x.id }}" data-original-value="{{ x.demand5 }}" id="demand5-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand5}} name="demand5" id="demand5" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the fifth month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.4 }} ({{ increasedDemands.4 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.4 != 0 %}highlight-increase{% endif %}">{{ aiDemands.4 }} ({{ increasedDemands.4 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the fifth month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.4 }} ({{ decreasedDemands.4 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.4 != 0 %}highlight-decrease{% endif %}">{{ adDemands.4 }} ({{ decreasedDemands.4 }})</td>
                                           <!-- Table cell with padding, displaying the fifth month's allowable decrease in demand and the decreased demand. -->
                                     </tr>
                                     <!-- End of table row for the fifth month. -->
@@ -136,12 +290,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">6</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "6". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand6 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand6" id="demand6"  data-column="demand6" data-id="{{ x.id }}" data-original-value="{{ x.demand6 }}" id="demand6-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand6}} name="demand6" id="demand6" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the sixth month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.5 }} ({{ increasedDemands.5 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.5 != 0 %}highlight-increase{% endif %}">{{ aiDemands.5 }} ({{ increasedDemands.5 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the sixth month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.5 }} ({{ decreasedDemands.5 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.5 != 0 %}highlight-decrease{% endif %}">{{ adDemands.5 }} ({{ decreasedDemands.5 }})</td>
                                           <!-- Table cell with padding, displaying the sixth month's allowable decrease in demand and the decreased demand. -->
+            
                                     </tr>
                                     <!-- End of table row for the sixth month. -->
                                     {% endif %}
@@ -152,12 +308,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">7</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "7". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand7 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand7" id="demand7"  data-column="demand7" data-id="{{ x.id }}" data-original-value="{{ x.demand7}}" id="demand7-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand7}} name="demand7" id="demand7" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the seventh month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.6 }} ({{ increasedDemands.6 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.6 != 0 %}highlight-increase{% endif %}">{{ aiDemands.6 }} ({{ increasedDemands.6 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the seventh month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.6 }} ({{ decreasedDemands.6 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.6 != 0 %}highlight-decrease{% endif %}">{{ adDemands.6 }} ({{ decreasedDemands.6 }})</td>
                                           <!-- Table cell with padding, displaying the seventh month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row for the seventh month. -->
                                     {% endif %}
@@ -168,12 +326,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">8</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "8". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand8 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand8" id="demand8"  data-column="demand8" data-id="{{ x.id }}" data-original-value="{{ x.demand8 }}" id="demand8-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand8}} name="demand8" id="demand8" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the eighth month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.7 }} ({{ increasedDemands.7 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.7 != 0 %}highlight-increase{% endif %}">{{ aiDemands.7 }} ({{ increasedDemands.7 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the eighth month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.7 }} ({{ decreasedDemands.7 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.7 != 0 %}highlight-decrease{% endif %}">{{ adDemands.7 }} ({{ decreasedDemands.7 }})</td>
                                           <!-- Table cell with padding, displaying the eighth month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row for the eighth month. -->
                                     {% endif %}
@@ -184,12 +344,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">9</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "9". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand9 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand9" id="demand9"  data-column="demand9" data-id="{{ x.id }}" data-original-value="{{ x.demand9 }}" id="demand9-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand9}} name="demand9" id="demand9" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the ninth month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.8 }} ({{ increasedDemands.8 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.8 != 0 %}highlight-increase{% endif %}">{{ aiDemands.8 }} ({{ increasedDemands.8 }})</td>
                                           <!-- Table cell with padding, border, and dark mode support, displaying the ninth month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.8 }} ({{ decreasedDemands.8 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.8 != 0 %}highlight-decrease{% endif %}">{{ adDemands.8 }} ({{ decreasedDemands.8 }})</td>
                                           <!-- Table cell with padding, displaying the ninth month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row for the ninth month. -->
                                     {% endif %}
@@ -200,12 +362,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">10</th>
                                           <!-- Table header cell for row, with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "10". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand10 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand10" id="demand10"  data-column="demand10" data-id="{{ x.id }}" data-original-value="{{ x.demand10}}" id="demand10-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand10}} name="demand10" id="demand10" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding and border displaying the tenth month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.9 }} ({{ increasedDemands.9 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.9 != 0 %}highlight-increase{% endif %}">{{ aiDemands.9 }} ({{ increasedDemands.9 }})</td>
                                           <!-- Table cell with padding and border displaying the tenth month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.9 }} ({{ decreasedDemands.9 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.9 != 0 %}highlight-decrease{% endif %}">{{ adDemands.9 }} ({{ decreasedDemands.9 }})</td>
                                           <!-- Table cell with padding displaying the tenth month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row. -->
                                     {% endif %}
@@ -216,12 +380,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">11</th>
                                           <!-- Table header cell for row with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "11". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand11 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand11" id="demand11"  data-column="demand11" data-id="{{ x.id }}" data-original-value="{{ x.demand11 }}" id="demand11-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand11}} name="demand11" id="demand11" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding and border displaying the eleventh month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.10 }} ({{ increasedDemands.10 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.10 != 0 %}highlight-increase{% endif %}">{{ aiDemands.10 }} ({{ increasedDemands.10 }})</td>
                                           <!-- Table cell with padding and border displaying the eleventh month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.10 }} ({{ decreasedDemands.10 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.10 != 0 %}highlight-decrease{% endif %}">{{ adDemands.10 }} ({{ decreasedDemands.10 }})</td>
                                           <!-- Table cell with padding displaying the eleventh month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row. -->
                                     {% endif %}
@@ -232,12 +398,14 @@
                                     <!-- Table row with alternating background colors for odd and even rows, border, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">12</th>
                                           <!-- Table header cell for row with padding, medium font weight, black text, uppercase, border, and dark mode support, displaying "12". -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand12 }}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 editable" contenteditable="true" name="demand12" id="demand12"  data-column="demand12" data-id="{{ x.id }}" data-original-value="{{ x.demand12 }}" id="demand12-{{ x.id }}"><input required min="0" type="number" step="1" value={{x.demand12}} name="demand12" id="demand12" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                                          </td>
                                           <!-- Table cell with padding and border displaying the twelfth month's demand from 'x'. -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ aiDemands.11 }} ({{ increasedDemands.11 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if aiDemands.11 != 0 %}highlight-increase{% endif %}">{{ aiDemands.11 }} ({{ increasedDemands.11 }})</td>
                                           <!-- Table cell with padding and border displaying the twelfth month's allowable increase in demand and the increased demand. -->
-                                          <td class="p-2">{{ adDemands.11 }} ({{ decreasedDemands.11 }})</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700 {% if adDemands.11 != 0 %}highlight-decrease{% endif %}">{{ adDemands.11 }} ({{ decreasedDemands.11 }})</td>
                                           <!-- Table cell with padding displaying the twelfth month's allowable decrease in demand and the decreased demand. -->
+                                         
                                     </tr>
                                     <!-- End of table row. -->
                                     {% endif %}
@@ -249,11 +417,41 @@
                   </div>
                   <!-- End of div container for table. -->
                   {% endfor %}
-                  <!-- End of for loop iterating over 'detail'. -->
+                
+                  
             </div>
-            <!-- End of outer div container. -->      </div>
+            <!-- End of outer div container. -->   
+               
+
+               </div>
+        
+              <!-- New Table with unique class -->
+              <table class="worker-cost-table">
+                <thead>
+                    <tr>
+                        <th>Temporary Worker Hiring Cost</th>
+                        <th>Temporary Worker Firing Cost</th>
+                        <th>Temporary Workers Production Rate</th>
+                        <th>Total Final Optimize</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="number" name="costHiring" step="0.01" value="{{ inputCostHiring }}" required></td>
+                        <td><input type="number" name="costFiring" step="0.01" value="{{ inputCostFiring }}" required></td>
+                        <td><input type="number" name="prodTemporary" step="0.01" value="{{ inputProdTemporary }}" required></td>
+                        <td>{{ inputOptimalCost }}</td> <!-- Non-editable, display only -->
+                    </tr>
+                </tbody>
+            </table>
+            
       <!-- End of outer div container. -->
+      <button id="saveChanges" class="btn btn-primary">Save Changes</button>
+    </form>
+    
+      
 </body>
 <!-- End of body section. -->
 {% endblock %}
 <!-- End of content block. -->
+
