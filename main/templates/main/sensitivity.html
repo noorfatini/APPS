@@ -423,8 +423,34 @@
             <!-- End of outer div container. -->   
                
 
-               </div>
-        
+                      </div>
+               <table class="worker-cost-table">
+                <thead>
+                    {% comment %} <tr><th>Sensitivity Result for multi-Input variables</th></tr> {% endcomment %}
+                    <tr>
+                        <th>Initialize Holding Inventory cost</th>
+                        <th>Allowable increase Holding Inventory cost</th>
+                        <th>Allowable decrease Holding Inventory cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td contenteditable="true" name="costHoldingUnit" id="costHoldingUnit" data-id="costHoldingUnit" data-original-value="{{inputCostHoldingUnit }}" id="costHoldingUnit">
+                            <input required min="0" type="number" step="0.1" value={{inputCostHoldingUnit}} name="costHoldingUnit" id="costHoldingUnit" placeholder="Inventory Holding cost"~>
+                        </td>
+                        {% comment %} <td><input type="number" name="costHoldingUnit" step="0.01" value="{{ inputCostHoldingUnit  }}" required></td> {% endcomment %}
+                        <td class="p-2 border border-gray-200 dark:border-gray-700 
+                            {% if aiHoldingCost|length > 0 and aiHoldingCost.0 != 0 %}highlight-increase{% endif %}">
+                            {{ aiHoldingCost.0 }} ({{ increasedHoldingCost }})
+                        </td>
+                        <td class="p-2 border border-gray-200 dark:border-gray-700 
+                            {% if adHoldingCost|length > 0 and adHoldingCost.0 != 0 %}highlight-decrease{% endif %}">
+                            {{ adHoldingCost.0 }} ({{ decreasedHoldingCost }})
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
               <!-- New Table with unique class -->
               <table class="worker-cost-table">
                 <thead>
