@@ -317,7 +317,9 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
         inputDemand12 = request.POST.get('demand12', newinputDemands[11])
         inputCostHiring = request.POST.get('costHiring')  # Get the hiring cost from the POST request.
         inputCostFiring = request.POST.get('costFiring')  # 
+        inputCostHoldingUnit= request.POST.get('costHoldingUnit')
         inputProdTemporary = request.POST.get('prodTemporary')
+        inputCostHoldingUnit = float(inputCostHoldingUnit) if inputCostHoldingUnit not in [None, ''] else 0.0
         inputCostHiring = float(inputCostHiring) if inputCostHiring not in [None, ''] else 0.0
         inputCostFiring = float(inputCostFiring) if inputCostFiring not in [None, ''] else 0.0
         inputProdTemporary = float(inputProdTemporary) if inputProdTemporary not in [None, ''] else 0.0
@@ -336,6 +338,7 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
         demand12 = inputDemand12,
         costHiring=inputCostHiring, 
         costFiring=inputCostFiring,
+        costHoldingUnit=inputCostHoldingUnit,
         prodTemporary=inputProdTemporary, 
          filled = True) # Update the ProductionPlan with the new values.
       
@@ -346,7 +349,10 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
     aiDemands = []  # List to store allowable increase in demands
     decreasedDemands = []  # List to store demands after decrease
     increasedDemands = []  # List to store demands after increase
-
+    adHoldingCost = []  # List to store allowable decrease in holding cost
+    aiHoldingCost = []  # List to store allowable increase in holding cost
+    increasedHoldingCost = []  # List to store increased holding costs
+    decreasedHoldingCost = []  # List to store decreased holding costs
     
     for x in detail:  # Iterate over the details of the production plan
         # Extract relevant values from the production plan details
@@ -364,23 +370,26 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
         for loop in range(1, num_months + 1):  # Loop through each month
             original_cost = inputOptimalCost  # Store the original optimal cost
             original_demand = inputDemands[loop-1]  # Store the original demand for the month
+            original_holding_cost = inputCostHoldingUnit 
             step_size = min(inputProdPermanent, inputProdTemporary)  # Define the perturbation step size
             aiDemand = 0  # Initialize allowable increase in demand
             adDemand = 0  # Initialize allowable decrease in demand
+            step_size_holding = 0.1 
             iteration = 0  # Initialize iteration counter for increase perturbation
             
             while iteration < 100:  # Perform iterative perturbation to increase demand
                 inputDemands[loop-1] += step_size  # Increase the demand by step size
+                inputCostHoldingUnit += step_size_holding 
                 # Define the linear programming problem to minimize cost
                 month = list(range(num_months))
                 monthIHC = list(range(num_months - 1))
                 model = LpProblem("Minimize Cost", LpMinimize)
                 
                 # Define decision variables
-                ihcDict = LpVariable.dicts('IHC', monthIHC, lowBound=0, cat='Integer')  # Inventory holding cost variables
-                hcDict = LpVariable.dicts('HC', month, lowBound=0, cat='Integer')  # Hiring cost variables
-                fcDict = LpVariable.dicts('FC', month, lowBound=0, cat='Integer')  # Firing cost variables
-                ntwDict = LpVariable.dicts('NTW', month, lowBound=0, cat='Integer')  # Number of temporary workers variables
+                ihcDict = LpVariable.dicts('IHC', monthIHC, lowBound=0)  # Inventory holding cost variables
+                hcDict = LpVariable.dicts('HC', month, lowBound=0)  # Hiring cost variables
+                fcDict = LpVariable.dicts('FC', month, lowBound=0)  # Firing cost variables
+                ntwDict = LpVariable.dicts('NTW', month, lowBound=0)  # Number of temporary workers variables
                 
                 # Objective function: minimize the sum of holding, hiring, and firing costs
                 model += (lpSum([inputCostHoldingUnit * ihcDict[i] for i in monthIHC]) +
@@ -413,13 +422,15 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 if model.status == 1:  # Check if the optimal solution is found
                     if value(model.objective) != original_cost:  # If the optimal cost changes
                         aiDemand = step_size * iteration  # Store the allowable increase in demand
+                        aiHoldingCost.append(step_size_holding * iteration)
                         break
                 
                 iteration += 1  # Increment the iteration counter
-
+            inputCostHoldingUnit = original_holding_cost
             inputDemands[loop-1] = original_demand  # Reset the demand to its original value
             iteration = 0  # Initialize iteration counter for decrease perturbation
             while iteration < 200:  # Perform iterative perturbation to decrease demand
+                inputCostHoldingUnit -= step_size_holding
                 inputDemands[loop-1] -= step_size  # Decrease the demand by step size
                 
                 # Define the linear programming problem to minimize cost
@@ -428,10 +439,10 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 model = LpProblem("Minimize Cost", LpMinimize)
                 
                 # Define decision variables
-                ihcDict = LpVariable.dicts('IHC', monthIHC, lowBound=0, cat='Integer')  # Inventory holding cost variables
-                hcDict = LpVariable.dicts('HC', month, lowBound=0, cat='Integer')  # Hiring cost variables
-                fcDict = LpVariable.dicts('FC', month, lowBound=0, cat='Integer')  # Firing cost variables
-                ntwDict = LpVariable.dicts('NTW', month, lowBound=0, cat='Integer')  # Number of temporary workers variables
+                ihcDict = LpVariable.dicts('IHC', monthIHC, lowBound=0)  # Inventory holding cost variables
+                hcDict = LpVariable.dicts('HC', month, lowBound=0)  # Hiring cost variables
+                fcDict = LpVariable.dicts('FC', month, lowBound=0)  # Firing cost variables
+                ntwDict = LpVariable.dicts('NTW', month, lowBound=0)  # Number of temporary workers variables
                 
                 # Objective function: minimize the sum of holding, hiring, and firing costs
                 model += (lpSum([inputCostHoldingUnit * ihcDict[i] for i in monthIHC]) +
@@ -464,15 +475,21 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 if model.status == 1:  # Check if the optimal solution is found
                     if value(model.objective) != original_cost:  # If the optimal cost changes
                         adDemand = step_size * iteration  # Store the allowable decrease in demand
+                        adHoldingCost.append(step_size_holding * iteration)
                         break
                 
                 iteration += 1  # Increment the iteration counter
-
+            inputCostHoldingUnit = original_holding_cost 
             inputDemands[loop-1] = original_demand  # Reset the demand to its original value
             aiDemands.append(aiDemand)  # Append the allowable increase in demand to the list
             adDemands.append(adDemand)  # Append the allowable decrease in demand to the list
             increasedDemands.append(inputDemands[loop-1] + aiDemand)  # Append the increased demand to the list
             decreasedDemands.append(inputDemands[loop-1] - adDemand)  # Append the decreased demand to the list
+            aiHoldingCost.append(aiDemand)  # Store the allowable increase for holding costs
+            adHoldingCost.append(adDemand)   # Store the allowable decrease for holding costs
+            # Calculate increased and decreased holding costs
+            increasedHoldingCost.append(inputCostHoldingUnit + aiHoldingCost[loop- 1])  # current cost plus allowable increase
+            decreasedHoldingCost.append(inputCostHoldingUnit - adHoldingCost[loop-1])  # current cost minus allowable decrease
     # Render the sensitivity analysis results in the template
         return render(request, "main/sensitivity.html", {
             'detail': detail, 
@@ -480,15 +497,21 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
             'adDemands': adDemands,
             'increasedDemands': increasedDemands, 
             'decreasedDemands': decreasedDemands,
-            'increasedDemands': increasedDemands,
-            'decreasedDemands': decreasedDemands,
+            'aiHoldingCost': aiHoldingCost,  # Pass the allowable increase in holding cost to template
+            'adHoldingCost': adHoldingCost,
+            'increasedHoldingCost': increasedHoldingCost,  # Pass the increased holding costs
+            'decreasedHoldingCost': decreasedHoldingCost, 
             'inputCostHiring': inputCostHiring,
             'inputCostFiring': inputCostFiring,
             'inputProdTemporary': inputProdTemporary,
+            'inputCostHoldingUnit': inputCostHoldingUnit,
             'inputOptimalCost':inputOptimalCost,
         })
-        
+
+
+
 def optimize_plan(plan_ID, num_months):  # Function definition with parameters: plan_ID and num_months
+    global inputCostHiring
     detail = ProductionPlan.objects.filter(id=plan_ID).values()  # Query the ProductionPlan table for the specified plan_ID and get the values
     
     for x in detail:  # Iterate over the details of the production plan
@@ -509,10 +532,10 @@ def optimize_plan(plan_ID, num_months):  # Function definition with parameters: 
     model = LpProblem("Minimize Cost", LpMinimize)  # Define the linear programming problem to minimize cost
     
     # Define decision variables
-    ihcDict = LpVariable.dicts('IHC', monthIHC, lowBound=0, cat='Integer')  # Inventory holding cost variables
-    hcDict = LpVariable.dicts('HC', month, lowBound=0, cat='Integer')  # Hiring cost variables
-    fcDict = LpVariable.dicts('FC', month, lowBound=0, cat='Integer')  # Firing cost variables
-    ntwDict = LpVariable.dicts('NTW', month, lowBound=0, cat='Integer')  # Number of temporary workers variables
+    ihcDict = LpVariable.dicts('IHC', monthIHC, lowBound=0)  # Inventory holding cost variables
+    hcDict = LpVariable.dicts('HC', month, lowBound=0)  # Hiring cost variables
+    fcDict = LpVariable.dicts('FC', month, lowBound=0)  # Firing cost variables
+    ntwDict = LpVariable.dicts('NTW', month, lowBound=0)  # Number of temporary workers variables
     
     # Objective function: minimize the sum of holding, hiring, and firing costs
     model += (lpSum([inputCostHoldingUnit * ihcDict[i] for i in monthIHC]) + 
@@ -552,6 +575,7 @@ def optimize_plan(plan_ID, num_months):  # Function definition with parameters: 
     ProductionPlan.objects.filter(id=plan_ID).update(**update_dict)  # Update the ProductionPlan with the optimization results
     
     return optimizationStatus  # Return the optimization status
+
 
 # Define worksheet header row style.
 style_head_row = xlwt.easyxf("""    
