@@ -59,11 +59,12 @@
                               <thead class="text-xs font-medium text-black uppercase bg-gray-50 dark:bg-gray-700 dark:text-white">
                               <!-- Table header with extra small, bold, uppercase text. Light gray background for light mode and dark gray background for dark mode. -->
                                     <tr>
-                                          <td colspan="10" scope="col" class="p-2 text-sm font-extrabold border dark:border-gray-700">Optimization Results</td>
+                                          <td colspan="11" scope="col" class="p-2 text-sm font-extrabold border dark:border-gray-700">Optimization Results</td>
                                     </tr> 
                                     <!-- Table row with a single cell spanning 10 columns, displaying "Optimization Results" with bold text and border. -->
                                     <tr>
                                           <td scope="col" class="p-2">Month</td>
+                                          <td scope="col" class="p-2">Date</td>
                                           <td scope="col" class="p-2">Demand</td>
                                           <td scope="col" class="p-2">Remaining Demand</td>
                                           <td scope="col" class="p-2">Ending Inventory Units</td>
@@ -83,7 +84,10 @@
                                     <tr class="border odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:border-gray-700">
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">1</th>
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now " M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand1 }}</td>
+                                          
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.0 }}</td>
                                           {% if x.length > 1 %}
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.inventoryMonth1 }}</td>
@@ -109,6 +113,8 @@
                                     <tr class="border odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:border-gray-700">
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">2</th>
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand2 }}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.1 }}</td>
                                           {% if x.length > 2 %}
@@ -146,6 +152,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">3</th>
                                           <!-- Table cell displaying "3" for the third month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand3 }}</td>
                                           <!-- Table cell displaying the demand for the third month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.2 }}</td>
@@ -188,6 +196,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">4</th>
                                           <!-- Table cell displaying "4" for the fourth month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand4 }}</td>
                                           <!-- Table cell displaying the demand for the fourth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.3 }}</td>
@@ -230,6 +240,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">5</th>
                                           <!-- Table cell displaying "5" for the fifth month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand5 }}</td>
                                           <!-- Table cell displaying the demand for the fifth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.4 }}</td>
@@ -272,6 +284,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">6</th>
                                           <!-- Table cell displaying "6" for the sixth month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand6 }}</td>
                                           <!-- Table cell displaying the demand for the sixth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.5 }}</td>
@@ -314,6 +328,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">7</th>
                                           <!-- Table cell displaying "7" for the seventh month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand7 }}</td>
                                           <!-- Table cell displaying the demand for the seventh month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.6 }}</td>
@@ -356,6 +372,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">8</th>
                                           <!-- Table cell displaying "8" for the eighth month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand8 }}</td>
                                           <!-- Table cell displaying the demand for the eighth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.7 }}</td>
@@ -398,6 +416,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">9</th>
                                           <!-- Table cell displaying "9" for the ninth month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand9 }}</td>
                                           <!-- Table cell displaying the demand for the ninth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.8 }}</td>
@@ -440,6 +460,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">10</th>
                                           <!-- Table cell displaying "10" for the tenth month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand10 }}</td>
                                           <!-- Table cell displaying the demand for the tenth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.9 }}</td>
@@ -482,6 +504,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">11</th>
                                           <!-- Table cell displaying "11" for the eleventh month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand11 }}</td>
                                           <!-- Table cell displaying the demand for the eleventh month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.10 }}</td>
@@ -524,6 +548,8 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">12</th>
                                           <!-- Table cell displaying "12" for the twelfth month, with padding, bold text, uppercase, border, and dark mode support. -->
+                                          {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand12 }}</td>
                                           <!-- Table cell displaying the demand for the twelfth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.11 }}</td>
@@ -548,7 +574,7 @@
                                     <!-- End of condition to check if the length of 'x' is at least 12. -->
                                     <tr class="border odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 dark:border-gray-700">
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
-                                          <th scope="row" class="p-2 font-bold text-black uppercase whitespace-nowrap dark:text-white" colspan="7">Total Individual Costs</th>
+                                          <th scope="row" class="p-2 font-bold text-black uppercase whitespace-nowrap dark:text-white" colspan="8">Total Individual Costs</th>
                                           <!-- Table header cell displaying "Total Individual Costs" spanning 7 columns, with bold text, uppercase, and dark mode support. -->
                                           <td class="p-2 font-bold text-right border border-gray-200 whitespace-nowrap dark:border-gray-700">{{ total_hiring_cost }}</td>
                                           <!-- Table cell displaying the total hiring cost, with bold text, right-aligned text, padding, and border. -->
@@ -564,7 +590,7 @@
                               <!-- Start of table footer. -->
                                     <tr class="font-extrabold uppercase border even:bg-white even:dark:bg-gray-900 odd:bg-gray-50 odd:dark:bg-gray-800 dark:border-gray-700">
                                     <!-- Table row with alternating background colors for odd and even rows, bold text, uppercase, and dark mode support. -->
-                                          <th scope="row" class="p-2 text-base" colspan="7">Optimized Final Cost for Multi-Period Planning</th>
+                                          <th scope="row" class="p-2 text-base" colspan="8">Optimized Final Cost for Multi-Period Planning</th>
                                           <!-- Table header cell displaying "Optimized Final Cost for Multi-Period Planning" spanning 7 columns, with base text size and padding. -->
                                           <td class="p-2" colspan="3">{{ x.optimalCost }}</td>
                                           <!-- Table cell displaying the optimal cost for multi-period planning, spanning 3 columns, with padding. -->
@@ -686,37 +712,6 @@
                         <!-- End of auto-escaping block. -->
                   </div>
                   <!-- End of div for flexbox layout. -->
-                  <div style="margin-top: 30px;"> 
-                        <!-- Added margin-top to create a gap between figure 3 and figure 4 -->
-                        {% autoescape off %}
-                        <!-- Section Title -->
-                        <h3>Rehire and Termination Report</h3>
-                        <!-- Section Description -->
-                        <p>This section presents rehire and termination data.</p>
-                        <div style="width: 100%;">
-                        <!-- Div styled to take up 100% width. -->
-                              <div class="block dark:hidden">
-                              <!-- Div visible only in light mode. -->
-                                    {{ fig4Light }}
-                                    <!-- Placeholder for light mode figure 4. -->
-                              </div>
-                              <div class="hidden dark:block">
-                              <!-- Div visible only in dark mode. -->
-                                    {{ fig4Dark }}
-                                    <!-- Placeholder for dark mode figure 4. -->
-                              </div>
-                        </div>
-                        {% endautoescape %}
-                  </div>
-                  {% if messages %}
-                        <div class="messages">
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }}">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        </div>
-                  {% endif %}
             </div>
             <!-- End of div for the entire content section. -->
       </div>
