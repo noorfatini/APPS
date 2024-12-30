@@ -818,7 +818,7 @@ def generate_report(request, plan_ID):
             total_firing_cost += fC  # Accumulate total firing cost.
             total_holding_cost += ihc  # Accumulate total holding cost.
             
-             worker_numbers.append(x[f'numberTemporary{month}'])  # Append number of temporary workers for the month.
+            worker_numbers.append(x[f'numberTemporary{month}'])  # Append number of temporary workers for the month.
             months.append(f'Month {month}')  # Append the month to the months list.
 
     work_sheet.write(0, 0, 'MONTH', style_head_row)  # Write the header 'MONTH' in the first cell.
