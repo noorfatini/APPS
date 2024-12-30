@@ -8,12 +8,12 @@ from pulp import *  # Import PuLP library for optimization.
 from .forms import *  # Import all forms from the current directory.
 from .models import ProductionPlan  # Import ProductionPlan model from the current directory.
 import xlwt  # Import xlwt for creating Excel files.
+from datetime import datetime
 from io import BytesIO  # Import BytesIO for in-memory byte streams.
 from django.conf import settings  # Import settings from Django configuration.
 from django.contrib import messages  # Import messages for displaying notifications.
 import plotly.graph_objects as go  # Import Plotly for creating graphs.
 from django.core.mail import send_mail  # Import send_mail function for sending emails.
-import requests
 
 def index(request):    
     if request.method == "POST":  # Check if the request method is POST.
