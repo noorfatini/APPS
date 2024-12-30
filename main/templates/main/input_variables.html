@@ -41,11 +41,13 @@
                   <label for="demand1" class="block m-auto text-sm font-medium text-gray-900 dark:text-white">Demand:</label>
                   <!-- Otherwise, display a generic label "Demand". -->
                   {% endif %}
-                       <input required min="0" type="number" step="1" value={{x.demand1}} name="demand1" id="demand1" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
+                  <input required min="0" type="number" step="1" value={{x.demand1}} name="demand1" id="demand1" placeholder="Demand for Month 1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center">
                   <!-- Input field for demand of month 1, with required attribute, minimum value of 0, number type, and various styling for focus and dark mode. -->
                     <!-- Add date input for initializing the date for Demand 1 -->
                   <label for="date1" class="block m-auto text-sm font-medium text-gray-900 dark:text-white">Select Date for Month 1:</label>
                   <input required type="date" name="date1" id="date1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white text-center">
+               </div>
+               {% if x.length >= 2 %}
                <div class="grid grid-cols-2 gap-2">
                <!-- If 'x.length' is 2 or more, create a grid with 2 columns. -->
                {% else %}
