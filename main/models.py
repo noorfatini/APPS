@@ -30,6 +30,25 @@ class ProductionPlan(models.Model):
     demand10 = models.IntegerField(default=0)  # Demand for Month 10
     demand11 = models.IntegerField(default=0)  # Demand for Month 11
     demand12 = models.IntegerField(default=0)  # Demand for Month 12
+
+     
+    # Dates fields
+    start_date = models.DateField()   # Starting date of the production plan
+    end_date = models.DateField(null=True, blank=True)  # Optional ending date of the production plan
+     # Add any other specific monthly date fields if necessary, e.g.,
+    month1_date = models.DateField(null=True, blank=True)  # Date for Month 1
+    month2_date = models.DateField(null=True, blank=True)  # Date for Month 2
+    month3_date = models.DateField(null=True, blank=True)
+    month4_date = models.DateField(null=True, blank=True)
+    month5_date = models.DateField(null=True, blank=True)
+    month6_date = models.DateField(null=True, blank=True)
+    month7_date = models.DateField(null=True, blank=True)
+    month8_date = models.DateField(null=True, blank=True)
+    month9_date = models.DateField(null=True, blank=True)
+    month10_date = models.DateField(null=True, blank=True)
+    month11_date = models.DateField(null=True, blank=True)
+    month12_date = models.DateField(null=True, blank=True)
+    
     # IntegerField to store the number of permanent workers, defaulting to 0
     numPermanent = models.IntegerField(default=0)  # Number of Permanent Worker(s)
     # IntegerField to store the production rate of a permanent worker, defaulting to 0
