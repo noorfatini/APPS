@@ -33,7 +33,7 @@ class ProductionPlan(models.Model):
 
      
     # Dates fields
-    start_date = models.DateField()   # Starting date of the production plan
+    start_date = models.DateField(default='2025-01-01')   # Starting date of the production plan
     end_date = models.DateField(null=True, blank=True)  # Optional ending date of the production plan
      # Add any other specific monthly date fields if necessary, e.g.,
     month1_date = models.DateField(null=True, blank=True)  # Date for Month 1
