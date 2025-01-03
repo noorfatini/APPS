@@ -85,7 +85,7 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">1</th>
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now " M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month1_date|date:"j M Y" }}</td>  <!-- Display the date for Month 1 -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand1 }}</td>
                                           
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.0 }}</td>
@@ -114,7 +114,7 @@
                                     <!-- Table row with alternating background colors for odd and even rows, and dark mode support. -->
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">2</th>
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month2_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand2 }}</td>
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.1 }}</td>
                                           {% if x.length > 2 %}
@@ -153,7 +153,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">3</th>
                                           <!-- Table cell displaying "3" for the third month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month3_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand3 }}</td>
                                           <!-- Table cell displaying the demand for the third month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.2 }}</td>
@@ -197,7 +197,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">4</th>
                                           <!-- Table cell displaying "4" for the fourth month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month4_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand4 }}</td>
                                           <!-- Table cell displaying the demand for the fourth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.3 }}</td>
@@ -241,7 +241,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">5</th>
                                           <!-- Table cell displaying "5" for the fifth month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month5_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand5 }}</td>
                                           <!-- Table cell displaying the demand for the fifth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.4 }}</td>
@@ -285,7 +285,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">6</th>
                                           <!-- Table cell displaying "6" for the sixth month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month6_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand6 }}</td>
                                           <!-- Table cell displaying the demand for the sixth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.5 }}</td>
@@ -329,7 +329,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">7</th>
                                           <!-- Table cell displaying "7" for the seventh month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month7_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand7 }}</td>
                                           <!-- Table cell displaying the demand for the seventh month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.6 }}</td>
@@ -373,7 +373,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">8</th>
                                           <!-- Table cell displaying "8" for the eighth month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month8_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand8 }}</td>
                                           <!-- Table cell displaying the demand for the eighth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.7 }}</td>
@@ -417,7 +417,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">9</th>
                                           <!-- Table cell displaying "9" for the ninth month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month9_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand9 }}</td>
                                           <!-- Table cell displaying the demand for the ninth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.8 }}</td>
@@ -461,7 +461,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">10</th>
                                           <!-- Table cell displaying "10" for the tenth month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month10_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand10 }}</td>
                                           <!-- Table cell displaying the demand for the tenth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.9 }}</td>
@@ -505,7 +505,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">11</th>
                                           <!-- Table cell displaying "11" for the eleventh month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month11_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand11 }}</td>
                                           <!-- Table cell displaying the demand for the eleventh month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.10 }}</td>
@@ -549,7 +549,7 @@
                                           <th scope="row" class="p-2 font-medium text-black uppercase border border-gray-200 whitespace-nowrap dark:text-white dark:border-gray-700">12</th>
                                           <!-- Table cell displaying "12" for the twelfth month, with padding, bold text, uppercase, border, and dark mode support. -->
                                           {% load tz %} <!-- Ensure you load timezone-related tags if needed -->
-                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{% now "d M Y" %}</td>
+                                          <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.month12_date|date:"j M Y" }}</td>  
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ x.demand12 }}</td>
                                           <!-- Table cell displaying the demand for the twelfth month, with padding and border. -->
                                           <td class="p-2 border border-gray-200 dark:border-gray-700">{{ demands.11 }}</td>
