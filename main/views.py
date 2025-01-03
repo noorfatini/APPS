@@ -77,6 +77,7 @@ def initiate_sensitivity_analysis(request, plan_ID):
 def input_plan_variables(request, plan_ID):
     if request.method == "POST":  # Check if the request method is POST.
         inputDemand1 = request.POST.get('demand1')  # Get the demand for month 1 from the POST request.
+        inputDate1 = request.POST.get('date1')  # Get the date for month 1 from the POST request.
         inputDemand2 = request.POST.get('demand2')  # Get the demand for month 2 from the POST request.
         inputDemand3 = request.POST.get('demand3')  # Get the demand for month 3 from the POST request.
         inputDemand4 = request.POST.get('demand4')  # Get the demand for month 4 from the POST request.
@@ -96,8 +97,26 @@ def input_plan_variables(request, plan_ID):
         inputCostHoldingUnit = request.POST.get('costHoldingUnit')  # Get the holding cost per unit from the POST request.
         inputInventoryInitial = request.POST.get('inventoryInitial')  # Get the initial inventory from the POST request.
         inputInventoryFinal = request.POST.get('inventoryFinal')  # Get the final inventory from the POST request.
+        
+        
+        # Parse the inputDate1 to a datetime object
+        if inputDate1:
+            date1 = datetime.strptime(inputDate1, '%Y-%m-%d')  # Convert string to date object
         ProductionPlan.objects.filter(id=plan_ID).update(  # Update the ProductionPlan with the new values.
             demand1 = inputDemand1, 
+            start_date= inputDate1,
+                month1_date=date1,
+                month2_date=date1 + relativedelta(months=1, day=1),  # 1st of next month
+                month3_date=date1 + relativedelta(months=2, day=1),  # 1st of 2 months later
+                month4_date=date1 + relativedelta(months=3, day=1),  # 1st of 3 months later
+                month5_date=date1 + relativedelta(months=4, day=1),  # 1st of 4 months later
+                month6_date=date1 + relativedelta(months=5, day=1),  # 1st of 5 months later
+                month7_date=date1 + relativedelta(months=6, day=1),  # 1st of 6 months later
+                month8_date=date1 + relativedelta(months=7, day=1),  # 1st of 7 months later
+                month9_date=date1 + relativedelta(months=8, day=1),  # 1st of 8 months later
+                month10_date=date1 + relativedelta(months=9, day=1),  # 1st of 9 months later
+                month11_date=date1 + relativedelta(months=10, day=1),  # 1st of 10 months later
+                month12_date=date1 + relativedelta(months=11, day=1),  # 1st of 11 months later
             demand2 = inputDemand2, 
             demand3 = inputDemand3, 
             demand4 = inputDemand4,
@@ -119,10 +138,13 @@ def input_plan_variables(request, plan_ID):
             inventoryFinal = inputInventoryFinal,
             filled = True
         )
+                
+       
         return redirect('get-plan-list')  # Redirect to the plan list page.
     else:
         plan = ProductionPlan.objects.filter(id=plan_ID).values()  # Get the plan details.
-    return render(request, 'main/input_variables.html', {'plan': plan})  # Render the input variables page with the plan details.
+    return render(request, 'main/input_variables.html', {'plan': plan})  # Render the input variables page with the plan details.\
+
 
 # def view_plan_detail(request, plan_ID, num_months):  # Define a function to view plan details.
 #     status = optimize_plan(plan_ID, num_months)  # Optimize the plan and get the status.
@@ -822,161 +844,148 @@ def generate_report(request, plan_ID):
             months.append(f'Month {month}')  # Append the month to the months list.
 
     work_sheet.write(0, 0, 'MONTH', style_head_row)  # Write the header 'MONTH' in the first cell.
-    work_sheet.write(0, 1, 'DATE', style_head_row)  # Write the header 'DATE'
-    work_sheet.write(0, 2, 'DEMAND', style_head_row)  # Write the header 'DEMAND' in the second cell.
-    work_sheet.write(0, 3, 'REMAINING DEMAND', style_head_row)  # Write the header 'REMAINING DEMAND' in the third cell.
-    work_sheet.write(0, 4, 'ENDING INVENTORY UNITS', style_head_row)  # Write the header 'ENDING INVENTORY UNITS' in the fourth cell.
-    work_sheet.write(0, 5, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row)  # Write the header 'NUMBER OF TEMPORARY WORKER HIRED' in the fifth cell.
-    work_sheet.write(0, 6, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row)  # Write the header 'NUMBER OF TEMPORARY WORKER FIRED' in the sixth cell.
-    work_sheet.write(0, 7, 'NET NUMBER OF TEMPORARY WORKERS', style_head_row)  # Write the header 'NET NUMBER OF TEMPORARY WORKERS' in the seventh cell.
-    work_sheet.write(0, 8, 'HIRING COST', style_head_row)  # Write the header 'HIRING COST' in the eighth cell.
-    work_sheet.write(0, 9, 'FIRING COST', style_head_row)  # Write the header 'FIRING COST' in the ninth cell.
-    work_sheet.write(0, 10, 'INVENTORY HOLDING COST', style_head_row)  # Write the header 'INVENTORY HOLDING COST' in the tenth cell.
+    work_sheet.write(0, 1, 'DEMAND', style_head_row)  # Write the header 'DEMAND' in the second cell.
+    work_sheet.write(0, 2, 'REMAINING DEMAND', style_head_row)  # Write the header 'REMAINING DEMAND' in the third cell.
+    work_sheet.write(0, 3, 'ENDING INVENTORY UNITS', style_head_row)  # Write the header 'ENDING INVENTORY UNITS' in the fourth cell.
+    work_sheet.write(0, 4, 'NUMBER OF TEMPORARY WORKER HIRED', style_head_row)  # Write the header 'NUMBER OF TEMPORARY WORKER HIRED' in the fifth cell.
+    work_sheet.write(0, 5, 'NUMBER OF TEMPORARY WORKER FIRED', style_head_row)  # Write the header 'NUMBER OF TEMPORARY WORKER FIRED' in the sixth cell.
+    work_sheet.write(0, 6, 'NET NUMBER OF TEMPORARY WORKERS', style_head_row)  # Write the header 'NET NUMBER OF TEMPORARY WORKERS' in the seventh cell.
+    work_sheet.write(0, 7, 'HIRING COST', style_head_row)  # Write the header 'HIRING COST' in the eighth cell.
+    work_sheet.write(0, 8, 'FIRING COST', style_head_row)  # Write the header 'FIRING COST' in the ninth cell.
+    work_sheet.write(0, 9, 'INVENTORY HOLDING COST', style_head_row)  # Write the header 'INVENTORY HOLDING COST' in the tenth cell.
     
-    current_date = datetime.now().strftime('%d %b %Y')
+    # current_date = datetime.now().strftime('%d %b %Y')
     work_sheet.write(1, 0, '1', style_data_row)  # Write month '1' in the first row.
-    work_sheet.write(1, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(1, 2, x['demand1'], style_data_row)  # Write demand for month 1.
-    work_sheet.write(1, 3, demands[0], style_data_row)  # Write remaining demand for month 1.
-    work_sheet.write(1, 4, x['inventoryMonth1'], style_data_row)  # Write inventory for month 1.
-    work_sheet.write(1, 5, x['hiredTemporary1'], style_data_row)  # Write number of temporary workers hired in month 1.
-    work_sheet.write(1, 6, x['firedTemporary1'], style_data_row)  # Write number of temporary workers fired in month 1.
-    work_sheet.write(1, 7, x['numberTemporary1'], style_data_row)  # Write net number of temporary workers in month 1.
-    work_sheet.write(1, 8, hiring_costs[0], style_data_row_cost)  # Write hiring cost for month 1.
-    work_sheet.write(1, 9, firing_costs[0], style_data_row_cost)  # Write firing cost for month 1.
-    work_sheet.write(1, 10, holding_costs[0], style_data_row_cost)  # Write holding cost for month 1.
+    work_sheet.write(1, 1, x['demand1'], style_data_row)  # Write demand for month 1.
+    work_sheet.write(1, 2, demands[0], style_data_row)  # Write remaining demand for month 1.
+    work_sheet.write(1, 3, x['inventoryMonth1'], style_data_row)  # Write inventory for month 1.
+    work_sheet.write(1, 4, x['hiredTemporary1'], style_data_row)  # Write number of temporary workers hired in month 1.
+    work_sheet.write(1, 5, x['firedTemporary1'], style_data_row)  # Write number of temporary workers fired in month 1.
+    work_sheet.write(1, 6, x['numberTemporary1'], style_data_row)  # Write net number of temporary workers in month 1.
+    work_sheet.write(1, 7, hiring_costs[0], style_data_row_cost)  # Write hiring cost for month 1.
+    work_sheet.write(1, 8, firing_costs[0], style_data_row_cost)  # Write firing cost for month 1.
+    work_sheet.write(1, 9, holding_costs[0], style_data_row_cost)  # Write holding cost for month 1.
 
     work_sheet.write(2, 0, '2', style_data_row)  # Write month '2' in the second row.
-    work_sheet.write(2, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(2, 2, x['demand2'], style_data_row)  # Write demand for month 2.
-    work_sheet.write(2, 3, demands[1], style_data_row)  # Write remaining demand for month 2.
-    work_sheet.write(2, 4, x['inventoryMonth2'], style_data_row)  # Write inventory for month 2.
-    work_sheet.write(2, 5, x['hiredTemporary2'], style_data_row)  # Write number of temporary workers hired in month 2.
-    work_sheet.write(2, 6, x['firedTemporary2'], style_data_row)  # Write number of temporary workers fired in month 2.
-    work_sheet.write(2, 7, x['numberTemporary2'], style_data_row)  # Write net number of temporary workers in month 2.
-    work_sheet.write(2, 8, hiring_costs[1], style_data_row_cost)  # Write hiring cost for month 2.
-    work_sheet.write(2, 9, firing_costs[1], style_data_row_cost)  # Write firing cost for month 2.
-    work_sheet.write(2, 10, holding_costs[1], style_data_row_cost)  # Write holding cost for month 2.
+    work_sheet.write(2, 1, x['demand2'], style_data_row)  # Write demand for month 2.
+    work_sheet.write(2, 2, demands[1], style_data_row)  # Write remaining demand for month 2.
+    work_sheet.write(2, 3, x['inventoryMonth2'], style_data_row)  # Write inventory for month 2.
+    work_sheet.write(2, 4, x['hiredTemporary2'], style_data_row)  # Write number of temporary workers hired in month 2.
+    work_sheet.write(2, 5, x['firedTemporary2'], style_data_row)  # Write number of temporary workers fired in month 2.
+    work_sheet.write(2, 6, x['numberTemporary2'], style_data_row)  # Write net number of temporary workers in month 2.
+    work_sheet.write(2, 7, hiring_costs[1], style_data_row_cost)  # Write hiring cost for month 2.
+    work_sheet.write(2, 8, firing_costs[1], style_data_row_cost)  # Write firing cost for month 2.
+    work_sheet.write(2, 9, holding_costs[1], style_data_row_cost)  # Write holding cost for month 2.
 
     work_sheet.write(3, 0, '3', style_data_row)  # Write month '3' in the third row.
-    work_sheet.write(3, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(3, 2, x['demand3'], style_data_row)  # Write demand for month 3.
-    work_sheet.write(3, 3, demands[2], style_data_row)  # Write remaining demand for month 3.
-    work_sheet.write(3, 4, x['inventoryMonth3'], style_data_row)  # Write inventory for month 3.
-    work_sheet.write(3, 5, x['hiredTemporary3'], style_data_row)  # Write number of temporary workers hired in month 3.
-    work_sheet.write(3, 6, x['firedTemporary3'], style_data_row)  # Write number of temporary workers fired in month 3.
-    work_sheet.write(3, 7, x['numberTemporary3'], style_data_row)  # Write net number of temporary workers in month 3.
-    work_sheet.write(3, 8, hiring_costs[2], style_data_row_cost)  # Write hiring cost for month 3.
-    work_sheet.write(3, 9, firing_costs[2], style_data_row_cost)  # Write firing cost for month 3.
-    work_sheet.write(3, 10, holding_costs[2], style_data_row_cost)  # Write holding cost for month 3.
+    work_sheet.write(3, 1, x['demand3'], style_data_row)  # Write demand for month 3.
+    work_sheet.write(3, 2, demands[2], style_data_row)  # Write remaining demand for month 3.
+    work_sheet.write(3, 3, x['inventoryMonth3'], style_data_row)  # Write inventory for month 3.
+    work_sheet.write(3, 4, x['hiredTemporary3'], style_data_row)  # Write number of temporary workers hired in month 3.
+    work_sheet.write(3, 5, x['firedTemporary3'], style_data_row)  # Write number of temporary workers fired in month 3.
+    work_sheet.write(3, 6, x['numberTemporary3'], style_data_row)  # Write net number of temporary workers in month 3.
+    work_sheet.write(3, 7, hiring_costs[2], style_data_row_cost)  # Write hiring cost for month 3.
+    work_sheet.write(3, 8, firing_costs[2], style_data_row_cost)  # Write firing cost for month 3.
+    work_sheet.write(3, 9, holding_costs[2], style_data_row_cost)  # Write holding cost for month 3.
 
     work_sheet.write(4, 0, '4', style_data_row)  # Write month '4' in the fourth row.
-    work_sheet.write(4, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(4, 2, x['demand4'], style_data_row)  # Write demand for month 4.
-    work_sheet.write(4, 3, demands[3], style_data_row)  # Write remaining demand for month 4.
-    work_sheet.write(4, 4, x['inventoryMonth4'], style_data_row)  # Write inventory for month 4.
-    work_sheet.write(4, 5, x['hiredTemporary4'], style_data_row)  # Write number of temporary workers hired in month 4.
-    work_sheet.write(4, 6, x['firedTemporary4'], style_data_row)  # Write number of temporary workers fired in month 4.
-    work_sheet.write(4, 7, x['numberTemporary4'], style_data_row)  # Write net number of temporary workers in month 4.
-    work_sheet.write(4, 8, hiring_costs[3], style_data_row_cost)  # Write hiring cost for month 4.
-    work_sheet.write(4, 9, firing_costs[3], style_data_row_cost)  # Write firing cost for month 4.
-    work_sheet.write(4, 10, holding_costs[3], style_data_row_cost)  # Write holding cost for month 4.
+    work_sheet.write(4, 1, x['demand4'], style_data_row)  # Write demand for month 4.
+    work_sheet.write(4, 2, demands[3], style_data_row)  # Write remaining demand for month 4.
+    work_sheet.write(4, 3, x['inventoryMonth4'], style_data_row)  # Write inventory for month 4.
+    work_sheet.write(4, 4, x['hiredTemporary4'], style_data_row)  # Write number of temporary workers hired in month 4.
+    work_sheet.write(4, 5, x['firedTemporary4'], style_data_row)  # Write number of temporary workers fired in month 4.
+    work_sheet.write(4, 6, x['numberTemporary4'], style_data_row)  # Write net number of temporary workers in month 4.
+    work_sheet.write(4, 7, hiring_costs[3], style_data_row_cost)  # Write hiring cost for month 4.
+    work_sheet.write(4, 8, firing_costs[3], style_data_row_cost)  # Write firing cost for month 4.
+    work_sheet.write(4, 9, holding_costs[3], style_data_row_cost)  # Write holding cost for month 4.
 
     work_sheet.write(5, 0, '5', style_data_row)  # Write month '5' in the fifth row.
-    work_sheet.write(5, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(5, 2, x['demand5'], style_data_row)  # Write demand for month 5.
-    work_sheet.write(5, 3, demands[4], style_data_row)  # Write remaining demand for month 5.
-    work_sheet.write(5, 4, x['inventoryMonth5'], style_data_row)  # Write inventory for month 5.
-    work_sheet.write(5, 5, x['hiredTemporary5'], style_data_row)  # Write number of temporary workers hired in month 5.
-    work_sheet.write(5, 6, x['firedTemporary5'], style_data_row)  # Write number of temporary workers fired in month 5.
-    work_sheet.write(5, 7, x['numberTemporary5'], style_data_row)  # Write net number of temporary workers in month 5.
-    work_sheet.write(5, 8, hiring_costs[4], style_data_row_cost)  # Write hiring cost for month 5.
-    work_sheet.write(5, 9, firing_costs[4], style_data_row_cost)  # Write firing cost for month 5.
-    work_sheet.write(5, 10, holding_costs[4], style_data_row_cost)  # Write holding cost for month 5.
+    work_sheet.write(5, 1, x['demand5'], style_data_row)  # Write demand for month 5.
+    work_sheet.write(5, 2, demands[4], style_data_row)  # Write remaining demand for month 5.
+    work_sheet.write(5, 3, x['inventoryMonth5'], style_data_row)  # Write inventory for month 5.
+    work_sheet.write(5, 4, x['hiredTemporary5'], style_data_row)  # Write number of temporary workers hired in month 5.
+    work_sheet.write(5, 5, x['firedTemporary5'], style_data_row)  # Write number of temporary workers fired in month 5.
+    work_sheet.write(5, 6, x['numberTemporary5'], style_data_row)  # Write net number of temporary workers in month 5.
+    work_sheet.write(5, 7, hiring_costs[4], style_data_row_cost)  # Write hiring cost for month 5.
+    work_sheet.write(5, 8, firing_costs[4], style_data_row_cost)  # Write firing cost for month 5.
+    work_sheet.write(5, 9, holding_costs[4], style_data_row_cost)  # Write holding cost for month 5.
 
     work_sheet.write(6, 0, '6', style_data_row)  # Write month '6' in the sixth row.
-    work_sheet.write(6, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(6, 2, x['demand6'], style_data_row)  # Write demand for month 6.
-    work_sheet.write(6, 3, demands[5], style_data_row)  # Write remaining demand for month 6.
-    work_sheet.write(6, 4, x['inventoryMonth6'], style_data_row)  # Write inventory for month 6.
-    work_sheet.write(6, 5, x['hiredTemporary6'], style_data_row)  # Write number of temporary workers hired in month 6.
-    work_sheet.write(6, 6, x['firedTemporary6'], style_data_row)  # Write number of temporary workers fired in month 6.
-    work_sheet.write(6, 7, x['numberTemporary6'], style_data_row)  # Write net number of temporary workers in month 6.
-    work_sheet.write(6, 8, hiring_costs[5], style_data_row_cost)  # Write hiring cost for month 6.
-    work_sheet.write(6, 9, firing_costs[5], style_data_row_cost)  # Write firing cost for month 6.
-    work_sheet.write(6, 10, holding_costs[5], style_data_row_cost)  # Write holding cost for month 6.
+    work_sheet.write(6, 1, x['demand6'], style_data_row)  # Write demand for month 6.
+    work_sheet.write(6, 2, demands[5], style_data_row)  # Write remaining demand for month 6.
+    work_sheet.write(6, 3, x['inventoryMonth6'], style_data_row)  # Write inventory for month 6.
+    work_sheet.write(6, 4, x['hiredTemporary6'], style_data_row)  # Write number of temporary workers hired in month 6.
+    work_sheet.write(6, 5, x['firedTemporary6'], style_data_row)  # Write number of temporary workers fired in month 6.
+    work_sheet.write(6, 6, x['numberTemporary6'], style_data_row)  # Write net number of temporary workers in month 6.
+    work_sheet.write(6, 7, hiring_costs[5], style_data_row_cost)  # Write hiring cost for month 6.
+    work_sheet.write(6, 8, firing_costs[5], style_data_row_cost)  # Write firing cost for month 6.
+    work_sheet.write(6, 9, holding_costs[5], style_data_row_cost)  # Write holding cost for month 6.
 
     work_sheet.write(7, 0, '7', style_data_row)  # Write month '7' in the seventh row.
-    work_sheet.write(7, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(7, 2, x['demand7'], style_data_row)  # Write demand for month 7.
-    work_sheet.write(7, 3, demands[6], style_data_row)  # Write remaining demand for month 7.
-    work_sheet.write(7, 4, x['inventoryMonth7'], style_data_row)  # Write inventory for month 7.
-    work_sheet.write(7, 5, x['hiredTemporary7'], style_data_row)  # Write number of temporary workers hired in month 7.
-    work_sheet.write(7, 6, x['firedTemporary7'], style_data_row)  # Write number of temporary workers fired in month 7.
-    work_sheet.write(7, 7, x['numberTemporary7'], style_data_row)  # Write net number of temporary workers in month 7.
-    work_sheet.write(7, 8, hiring_costs[6], style_data_row_cost)  # Write hiring cost for month 7.
-    work_sheet.write(7, 9, firing_costs[6], style_data_row_cost)  # Write firing cost for month 7.
-    work_sheet.write(7, 10, holding_costs[6], style_data_row_cost)  # Write holding cost for month 7.
+    work_sheet.write(7, 1, x['demand7'], style_data_row)  # Write demand for month 7.
+    work_sheet.write(7, 2, demands[6], style_data_row)  # Write remaining demand for month 7.
+    work_sheet.write(7, 3, x['inventoryMonth7'], style_data_row)  # Write inventory for month 7.
+    work_sheet.write(7, 4, x['hiredTemporary7'], style_data_row)  # Write number of temporary workers hired in month 7.
+    work_sheet.write(7, 5, x['firedTemporary7'], style_data_row)  # Write number of temporary workers fired in month 7.
+    work_sheet.write(7, 6, x['numberTemporary7'], style_data_row)  # Write net number of temporary workers in month 7.
+    work_sheet.write(7, 7, hiring_costs[6], style_data_row_cost)  # Write hiring cost for month 7.
+    work_sheet.write(7, 8, firing_costs[6], style_data_row_cost)  # Write firing cost for month 7.
+    work_sheet.write(7, 9, holding_costs[6], style_data_row_cost)  # Write holding cost for month 7.
 
     work_sheet.write(8, 0, '8', style_data_row)  # Write month '8' in the eighth row.
-    work_sheet.write(8, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(8, 2, x['demand8'], style_data_row)  # Write demand for month 8.
-    work_sheet.write(8, 3, demands[7], style_data_row)  # Write remaining demand for month 8.
-    work_sheet.write(8, 4, x['inventoryMonth8'], style_data_row)  # Write inventory for month 8.
-    work_sheet.write(8, 5, x['hiredTemporary8'], style_data_row)  # Write number of temporary workers hired in month 8.
-    work_sheet.write(8, 6, x['firedTemporary8'], style_data_row)  # Write number of temporary workers fired in month 8.
-    work_sheet.write(8, 7, x['numberTemporary8'], style_data_row)  # Write net number of temporary workers in month 8.
-    work_sheet.write(8, 8, hiring_costs[7], style_data_row_cost)  # Write hiring cost for month 8.
-    work_sheet.write(8, 9, firing_costs[7], style_data_row_cost)  # Write firing cost for month 8.
-    work_sheet.write(8, 10, holding_costs[7], style_data_row_cost)  # Write holding cost for month 8.
+    work_sheet.write(8, 1, x['demand8'], style_data_row)  # Write demand for month 8.
+    work_sheet.write(8, 2, demands[7], style_data_row)  # Write remaining demand for month 8.
+    work_sheet.write(8, 3, x['inventoryMonth8'], style_data_row)  # Write inventory for month 8.
+    work_sheet.write(8, 4, x['hiredTemporary8'], style_data_row)  # Write number of temporary workers hired in month 8.
+    work_sheet.write(8, 5, x['firedTemporary8'], style_data_row)  # Write number of temporary workers fired in month 8.
+    work_sheet.write(8, 6, x['numberTemporary8'], style_data_row)  # Write net number of temporary workers in month 8.
+    work_sheet.write(8, 7, hiring_costs[7], style_data_row_cost)  # Write hiring cost for month 8.
+    work_sheet.write(8, 8, firing_costs[7], style_data_row_cost)  # Write firing cost for month 8.
+    work_sheet.write(8, 9, holding_costs[7], style_data_row_cost)  # Write holding cost for month 8.
 
     work_sheet.write(9, 0, '9', style_data_row)  # Write month '9' in the ninth row.
-    work_sheet.write(9, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(9, 2, x['demand9'], style_data_row)  # Write demand for month 9.
-    work_sheet.write(9, 3, demands[8], style_data_row)  # Write remaining demand for month 9.
-    work_sheet.write(9, 4, x['inventoryMonth9'], style_data_row)  # Write inventory for month 9.
-    work_sheet.write(9, 5, x['hiredTemporary9'], style_data_row)  # Write number of temporary workers hired in month 9.
-    work_sheet.write(9, 6, x['firedTemporary9'], style_data_row)  # Write number of temporary workers fired in month 9.
-    work_sheet.write(9, 7, x['numberTemporary9'], style_data_row)  # Write net number of temporary workers in month 9.
-    work_sheet.write(9, 8, hiring_costs[8], style_data_row_cost)  # Write hiring cost for month 9.
-    work_sheet.write(9, 9, firing_costs[8], style_data_row_cost)  # Write firing cost for month 9.
-    work_sheet.write(9, 10, holding_costs[8], style_data_row_cost)  # Write holding cost for month 9.
+    work_sheet.write(9, 1, x['demand9'], style_data_row)  # Write demand for month 9.
+    work_sheet.write(9, 2, demands[8], style_data_row)  # Write remaining demand for month 9.
+    work_sheet.write(9, 3, x['inventoryMonth9'], style_data_row)  # Write inventory for month 9.
+    work_sheet.write(9, 4, x['hiredTemporary9'], style_data_row)  # Write number of temporary workers hired in month 9.
+    work_sheet.write(9, 5, x['firedTemporary9'], style_data_row)  # Write number of temporary workers fired in month 9.
+    work_sheet.write(9, 6, x['numberTemporary9'], style_data_row)  # Write net number of temporary workers in month 9.
+    work_sheet.write(9, 7, hiring_costs[8], style_data_row_cost)  # Write hiring cost for month 9.
+    work_sheet.write(9, 8, firing_costs[8], style_data_row_cost)  # Write firing cost for month 9.
+    work_sheet.write(9, 9, holding_costs[8], style_data_row_cost)  # Write holding cost for month 9.
 
     work_sheet.write(10, 0, '10', style_data_row)  # Write month '10' in the tenth row.
-    work_sheet.write(10, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(10, 2, x['demand10'], style_data_row)  # Write demand for month 10.
-    work_sheet.write(10, 3, demands[9], style_data_row)  # Write remaining demand for month 10.
-    work_sheet.write(10, 4, x['inventoryMonth10'], style_data_row)  # Write inventory for month 10.
-    work_sheet.write(10, 5, x['hiredTemporary10'], style_data_row)  # Write number of temporary workers hired in month 10.
-    work_sheet.write(10, 6, x['firedTemporary10'], style_data_row)  # Write number of temporary workers fired in month 10.
-    work_sheet.write(10, 7, x['numberTemporary10'], style_data_row)  # Write net number of temporary workers in month 10.
-    work_sheet.write(10, 8, hiring_costs[9], style_data_row_cost)  # Write hiring cost for month 10.
-    work_sheet.write(10, 9, firing_costs[9], style_data_row_cost)  # Write firing cost for month 10.
-    work_sheet.write(10, 10, holding_costs[9], style_data_row_cost)  # Write holding cost for month 10.
+    work_sheet.write(10, 1, x['demand10'], style_data_row)  # Write demand for month 10.
+    work_sheet.write(10, 2, demands[9], style_data_row)  # Write remaining demand for month 10.
+    work_sheet.write(10, 3, x['inventoryMonth10'], style_data_row)  # Write inventory for month 10.
+    work_sheet.write(10, 4, x['hiredTemporary10'], style_data_row)  # Write number of temporary workers hired in month 10.
+    work_sheet.write(10, 5, x['firedTemporary10'], style_data_row)  # Write number of temporary workers fired in month 10.
+    work_sheet.write(10, 6, x['numberTemporary10'], style_data_row)  # Write net number of temporary workers in month 10.
+    work_sheet.write(10, 7, hiring_costs[9], style_data_row_cost)  # Write hiring cost for month 10.
+    work_sheet.write(10, 8, firing_costs[9], style_data_row_cost)  # Write firing cost for month 10.
+    work_sheet.write(10, 9, holding_costs[9], style_data_row_cost)  # Write holding cost for month 10.
 
     work_sheet.write(11, 0, '11', style_data_row)  # Write month '11' in the eleventh row.
-    work_sheet.write(11, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(11, 2, x['demand11'], style_data_row)  # Write demand for month 11.
-    work_sheet.write(11, 3, demands[10], style_data_row)  # Write remaining demand for month 11.
-    work_sheet.write(11, 4, x['inventoryMonth11'], style_data_row)  # Write inventory for month 11.
-    work_sheet.write(11, 5, x['hiredTemporary11'], style_data_row)  # Write number of temporary workers hired in month 11.
-    work_sheet.write(11, 6, x['firedTemporary11'], style_data_row)  # Write number of temporary workers fired in month 11.
-    work_sheet.write(11, 7, x['numberTemporary11'], style_data_row)  # Write net number of temporary workers in month 11.
-    work_sheet.write(11, 8, hiring_costs[10], style_data_row_cost)  # Write hiring cost for month 11.
-    work_sheet.write(11, 9, firing_costs[10], style_data_row_cost)  # Write firing cost for month 11.
-    work_sheet.write(11, 10, holding_costs[10], style_data_row_cost)  # Write holding cost for month 11.
+    work_sheet.write(11, 1, x['demand11'], style_data_row)  # Write demand for month 11.
+    work_sheet.write(11, 2, demands[10], style_data_row)  # Write remaining demand for month 11.
+    work_sheet.write(11, 3, x['inventoryMonth11'], style_data_row)  # Write inventory for month 11.
+    work_sheet.write(11, 4, x['hiredTemporary11'], style_data_row)  # Write number of temporary workers hired in month 11.
+    work_sheet.write(11, 5, x['firedTemporary11'], style_data_row)  # Write number of temporary workers fired in month 11.
+    work_sheet.write(11, 6, x['numberTemporary11'], style_data_row)  # Write net number of temporary workers in month 11.
+    work_sheet.write(11, 7, hiring_costs[10], style_data_row_cost)  # Write hiring cost for month 11.
+    work_sheet.write(11, 8, firing_costs[10], style_data_row_cost)  # Write firing cost for month 11.
+    work_sheet.write(11, 9, holding_costs[10], style_data_row_cost)  # Write holding cost for month 11.
 
     work_sheet.write(12, 0, '12', style_data_row)  # Write month '12' in the twelfth row.
-    work_sheet.write(12, 1, 'current_date', style_data_row)  # Write Date
-    work_sheet.write(12, 2, x['demand12'], style_data_row)  # Write demand for month 12.
-    work_sheet.write(12, 3, demands[11], style_data_row)  # Write remaining demand for month 12.
-    work_sheet.write(12, 4, x['inventoryFinal'], style_data_row)  # Write final inventory.
-    work_sheet.write(12, 5, x['hiredTemporary12'], style_data_row)  # Write number of temporary workers hired in month 12.
-    work_sheet.write(12, 6, x['firedTemporary12'], style_data_row)  # Write number of temporary workers fired in month 12.
-    work_sheet.write(12, 7, x['numberTemporary12'], style_data_row)  # Write net number of temporary workers in month 12.
-    work_sheet.write(12, 8, hiring_costs[11], style_data_row_cost)  # Write hiring cost for month 12.
-    work_sheet.write(12, 9, firing_costs[11], style_data_row_cost)  # Write firing cost for month 12.
-    work_sheet.write(12, 10, holding_costs[11], style_data_row_cost)  # Write holding cost for month 12.
+    work_sheet.write(12, 1, x['demand12'], style_data_row)  # Write demand for month 12.
+    work_sheet.write(12, 2, demands[11], style_data_row)  # Write remaining demand for month 12.
+    work_sheet.write(12, 3, x['inventoryFinal'], style_data_row)  # Write final inventory.
+    work_sheet.write(12, 4, x['hiredTemporary12'], style_data_row)  # Write number of temporary workers hired in month 12.
+    work_sheet.write(12, 5, x['firedTemporary12'], style_data_row)  # Write number of temporary workers fired in month 12.
+    work_sheet.write(12, 6, x['numberTemporary12'], style_data_row)  # Write net number of temporary workers in month 12.
+    work_sheet.write(12, 7, hiring_costs[11], style_data_row_cost)  # Write hiring cost for month 12.
+    work_sheet.write(12, 8, firing_costs[11], style_data_row_cost)  # Write firing cost for month 12.
+    work_sheet.write(12, 9, holding_costs[11], style_data_row_cost)  # Write holding cost for month 12.
 
     # Write the total individual costs in the row 13.
     work_sheet.write_merge(13, 13, 0, 6, 'TOTAL INDIVIDUAL COSTS', style_footer_row)  # Merge cells for total costs label.
