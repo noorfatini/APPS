@@ -29,7 +29,19 @@ def index(request):
             return redirect('get-plan-list')  # Redirect to the plan list page.
         else:
             return redirect('login')  # Redirect to the login page if the user is not authenticated.
-    return render(request, 'main/index.html')  # Render the index page.
+    
+    # Check if the user has any plans for the 3rd month (demand3 > 0)
+    plan_for_third_month_exists = ProductionPlan.objects.filter(username=request.user).exclude(demand3=0).exists()
+    
+    # Check if the user has any plans for the 3rd month (month3_date is null)
+    if not plan_for_third_month_exists:
+        third_month = datetime.now() + relativedelta(months=2)  # Get the date 3 months from now.
+        third_month = third_month.strftime('%B')  # Extract the date part if you don't need the time.
+
+    return render(request, 'main/index.html', {
+        'plan_for_third_month_exists': plan_for_third_month_exists,
+        'third_month': third_month if not plan_for_third_month_exists else None
+    })  # Render the index page.
 
 @login_required(login_url='/login/')  # Require login to access this view.
 def get_plan_list(request):

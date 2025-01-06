@@ -62,5 +62,12 @@ Home Page
    </div>
    <!-- Ends the container -->
 </body>
+
+<!-- Include the notification if a plan for the 3rd month doesn't exist -->
+{% if not plan_for_third_month_exists %}
+   {% include 'main/notification.html' with third_month=third_month %}
+{% endif %}
+
+
 {% endblock %}
 <!-- Ends the content block -->
