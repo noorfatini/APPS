@@ -10,7 +10,9 @@ class ProductionPlan(models.Model):
     # CharField to store the name of the production plan with a maximum length of 200 characters
     name = models.CharField(max_length=200)  # Plan Name
     # ForeignKey to associate the production plan with a user, deletes the plan if the user is deleted
-    username = models.ForeignKey(User, on_delete=models.CASCADE)
+    # username = models.ForeignKey(User, on_delete=models.CASCADE)
+    username = models.CharField(max_length=100)
+    
     # IntegerField to store the length of the production plan
     length = models.IntegerField()  # Plan Length
     # BooleanField to indicate whether input has been made for the plan, defaults to False
