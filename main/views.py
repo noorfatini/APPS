@@ -72,7 +72,8 @@ def login(request):
             request.session["is_superuser"] = is_superuser
 
             # Redirect to the home page
-            return redirect("home" if not is_superuser else "/admin/")
+            # return redirect("home" if not is_superuser else "/admin/")
+            return redirect("/admin/" if is_superuser else "home")
         
         else:
             # Handle invalid credentials
