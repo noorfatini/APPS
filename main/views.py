@@ -26,12 +26,16 @@ def index(request):
                 inputName = inputName+'_copy'
                 queryCheck = ProductionPlan.objects.filter(name=inputName).exists()
             ProductionPlan.objects.create(name=inputName, username=request.user, length=inputMonthRange)  # Create a new ProductionPlan.
+            
             return redirect('get-plan-list')  # Redirect to the plan list page.
         else:
             return redirect('login')  # Redirect to the login page if the user is not authenticated.
     
     # Check if the user has any plans for the 3rd month (demand3 > 0)
-    plan_for_third_month_exists = ProductionPlan.objects.filter(username=request.user).exclude(demand3=0).exists()
+    if request.user.is_authenticated:
+        plan_for_third_month_exists = ProductionPlan.objects.filter(username=request.user).exclude(demand3=0).exists()
+    else:
+        plan_for_third_month_exists = "None"
     
     # Check if the user has any plans for the 3rd month (month3_date is null)
     if not plan_for_third_month_exists:
