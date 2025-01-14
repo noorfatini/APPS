@@ -1,4 +1,5 @@
 from django.utils.functional import SimpleLazyObject
+from django.contrib.auth.models import AnonymousUser
 
 class CustomUser:
     def __init__(self, session):
@@ -18,23 +19,34 @@ class CustomUser:
 
     def has_module_perms(self, app_label):
         return self.is_superuser
-    
+
     def get_username(self):
         return self.email
 
     def __str__(self):
         return self.name or "Anonymous User"
 
+
 def get_custom_user(request):
-    if not hasattr(request, "_custom_user"):
-        request._custom_user = CustomUser(request.session)
-    return request._custom_user
+    if not hasattr(request, "_cached_custom_user"):
+        if hasattr(request, "_dont_override_user") and request._dont_override_user:
+            # Avoid overriding for superusers or fully authenticated users
+            return request.user
+        request._cached_custom_user = CustomUser(request.session)
+    return request._cached_custom_user
+
 
 class AuthenticationMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        request.user = SimpleLazyObject(lambda: get_custom_user(request))
-        print(f"DEBUG: Middleware user ID: {request.user.id}, Email: {request.user.email}")
+        # Set a flag to bypass middleware for superusers
+        if hasattr(request, "user") and request.user.is_authenticated and request.user.is_superuser:
+            request._dont_override_user = True
+            print(f"DEBUG: Superuser detected. Middleware bypassed for user: {request.user}")
+        else:
+            # Set custom user
+            request.user = SimpleLazyObject(lambda: get_custom_user(request))
+            print(f"DEBUG: Middleware set custom user: {request.user}")
         return self.get_response(request)
