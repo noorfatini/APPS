@@ -14,17 +14,12 @@ class CustomUser:
         self.is_superuser = session.get("is_superuser", False)  # Defaults to False
 
     def has_perm(self, perm, obj=None):
-        # Implement permission check logic, if applicable
         return self.is_superuser
 
     def has_module_perms(self, app_label):
-        # Allow module-level permissions for superusers
         return self.is_superuser
     
     def get_username(self):
-        """
-        Return the username (or email) for the user.
-        """
         return self.email
 
     def __str__(self):
