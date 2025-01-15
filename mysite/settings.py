@@ -12,9 +12,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 # Import the Path class from pathlib module to handle file paths
 from pathlib import Path
+from decouple import config
+from decouple import Config, RepositoryEnv
+from pathlib import Path
 
 # Define the base directory of the project, typically the parent directory of the current file
 BASE_DIR = Path(__file__).resolve().parent.parent
+config = Config(RepositoryEnv(BASE_DIR / '.env'))
+print(f"DEBUG: POWERHR_JWT_SECRET from .env: {config('POWERHR_JWT_SECRET', default='NOT SET')}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -22,6 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 # The secret key used for cryptographic signing in Django. Should be kept confidential
 SECRET_KEY = 'django-insecure-w+=$3jv^w5dx(4rvr9pbjwec_n8n@sc!$r_u9v&avt64$d=e#^'
+POWERHR_JWT_SECRET = config('POWERHR_JWT_SECRET', default=None)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # Enables debug mode, which should be turned off in production for security reasons
@@ -55,6 +61,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware', # Handles authentication
     'django.contrib.messages.middleware.MessageMiddleware', # Manages user messages
     'django.middleware.clickjacking.XFrameOptionsMiddleware', # Prevents clickjacking attacks
+    'mysite.middleware.auth_middleware.AuthenticationMiddleware',
 ]
 
 # The URL configuration for this project

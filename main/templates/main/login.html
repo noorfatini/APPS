@@ -42,7 +42,7 @@
             <!-- Flex container to center content vertically and horizontally on the full screen height -->
             <div class="w-4/12 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
                 <!-- Main content container with responsive width, white background, border, rounded corners, shadow, and padding -->
-                <form method="POST" class="space-y-4">
+                <form method="POST" action="{% url 'login' %}" class="space-y-4">
                     <!-- Form with vertical spacing between elements -->
                     <h1 class="text-2xl font-extrabold text-center text-gray-900 uppercase dark:text-white">Login to APPS</h1>
                     <!-- Main heading with large font size, bold weight, centered text, gray color, and uppercase text -->
@@ -50,18 +50,53 @@
                     <!-- Horizontal line for separation -->
                     {% csrf_token %}
                     <!-- Django CSRF token for form security -->
+                    
+                    <!-- Error Popup -->
+                    {% if error %}
+                    <div class="bg-red-500 text-white p-4 rounded-lg">
+                        <p class="text-center font-bold">
+                            {{ error }}
+                        </p>
+                    </div>
+                    {% endif %}
+                    <!-- End Error Popup -->                
+                                      
+                    
                     <div>
                         <label for="email" class="block m-auto mb-2 text-sm font-bold text-center text-gray-900 uppercase dark:text-white">Username</label>
                         <!-- Label for the username field with styling -->
-                        {% render_field form.username placeholder="Username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center" pattern="^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,6}$" %}
+                        
+                        <input
+                            type="text"
+                            name="email"
+                            id="email"
+                            placeholder="Username"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center"
+                            required                     
+                        />
+
+                        
+                        
+                        <!-- {% render_field form.username placeholder="Username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center" pattern="^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,6}$" %} -->
                         <!-- Rendered field for username input with placeholder, styling, and pattern for email validation -->
                     </div>
                     <div class="relative">
                         <label for="password" class="block m-auto mb-2 text-sm font-bold text-center text-gray-900 uppercase dark:text-white">Password</label>
                         <!-- Label for the password field with styling -->
-                        <div class="flex">
+                        
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            placeholder="Password"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center"
+                            required
+                        />
+                        
+                        
+                        <div class="flex">                                               
                             <!-- Flex container for password input and visibility toggle button -->
-                            {% render_field form.password id="password" placeholder="Password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center"%}
+                            <!-- {% render_field form.password id="password" placeholder="Password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white text-center"%} -->
                             <!-- Rendered field for password input with placeholder and styling -->
                             <button type="button" id="togglePassword" class="-ml-8 focus:outline-none">
                                 <!-- Button to toggle password visibility -->
@@ -78,7 +113,7 @@
                     <!-- Horizontal line for separation -->
                     <div class="flex justify-center w-full">
                         <!-- Flex container to center the registration link -->
-                        <a href="/register" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Newly Appointed? Register Now!</a>
+                        <!-- <a href="/register" class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">Newly Appointed? Register Now!</a> -->
                         <!-- Link to registration page with styling for normal and dark modes, and hover/focus effects -->
                     </div>
                 </form>

@@ -17,7 +17,10 @@ urlpatterns = [
     # URL for user registration, maps to the register view and names the URL pattern 'register'
     path('register/', views.register, name="register"),
     # URL for user login, uses Django's LoginView with a custom template and names the URL pattern 'login'
-    path('login', LoginView.as_view(template_name="main/login.html"), name="login"),
+    # path('login', LoginView.as_view(template_name="main/login.html"), name="login"),
+    
+    path('login', views.login, name="login"),
+
     # URL for user logout, maps to the logout_view and names the URL pattern 'logout'
     path('logout', views.logout_view, name='logout'),
     # URL for editing user profiles, includes a dynamic 'id' parameter and names the URL pattern 'edit-profile'

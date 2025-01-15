@@ -15,8 +15,76 @@ from django.conf import settings  # Import settings from Django configuration.
 from django.contrib import messages  # Import messages for displaying notifications.
 import plotly.graph_objects as go  # Import Plotly for creating graphs.
 from django.core.mail import send_mail  # Import send_mail function for sending emails.
+from mysite.middleware.authentication import authenticate_request
+from django.contrib.auth import login as django_login
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
+import requests
+from .decorators import custom_login_required
+
+def login(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        # Send login request to PowerHR
+        powerhr_login_url = "http://[::1]:3000/auth/login"  # Replace with your PowerHR login endpoint
+        response = requests.post(powerhr_login_url, json={"email": email, "password": password})
+
+        if response.status_code == 200:
+            # Parse the response from PowerHR
+            data = response.json()
+            print("Response from PowerHR:", data)  # Debugging line
+            
+            token = data.get("token")  # JWT token
+            user_data = data.get("user")  # User details from PowerHR
+
+            if not user_data or "role" not in user_data:
+                return render(request, "main/login.html", {"error": "Invalid PowerHR response"})
+
+            # Check the user's role
+            user_role = user_data.get("role")  # Assuming PowerHR includes a "role" field in its response
+            if user_role == "Applicant":
+                # If user is not an Employee, show error popup
+                return render(request, "main/login.html", {"error": "Access restricted to Employees only"})
+
+            is_superuser = user_role == "Admin"
+            is_staff = is_superuser or user_role in ["HR", "Manager"]
+
+            # Set cookies for JWT token and user details
+            # http_response = HttpResponseRedirect("/")  # Redirect to the home page
+            # http_response.set_cookie("Authorization", f"Bearer {token}")
+            # http_response.set_cookie("user_email", user_data["email"])
+            # http_response.set_cookie("user_name", f"{user_data['firstName']} {user_data['lastName']}")
+            # http_response.set_cookie("user_role", user_role)
+
+            # return http_response
+
+            # Store user details in the session
+            request.session["is_authenticated"] = True
+            request.session["user_token"] = token
+            request.session["user_email"] = user_data["email"]
+            request.session["user_name"] = f"{user_data['firstName']} {user_data['lastName']}"
+            request.session["user_role"] = user_role
+            request.session["user_id"] = user_data.get("_id")
+            request.session["is_active"] = True  # Set to True for active users
+            request.session["is_staff"] = is_staff
+            request.session["is_superuser"] = is_superuser
+
+            # Redirect to the home page
+            # return redirect("home" if not is_superuser else "/admin/")
+            return redirect("/admin/" if is_superuser else "home")
+        
+        else:
+            # Handle invalid credentials
+            #return JsonResponse({"error": "Invalid credentials"}, status=401)
+            return render(request, "main/login.html", {"error": "Invalid credentials"})
+
+    return render(request, "main/login.html")
 
 def index(request):    
+    print(f"DEBUG: User ID: {request.user.id}, Authenticated: {request.user.is_authenticated}")
+
     if request.method == "POST":  # Check if the request method is POST.
         if request.user.is_authenticated:  # Check if the user is authenticated.
             inputName = str(request.POST.get('name'))  # Get the input name from the POST request.
@@ -25,7 +93,7 @@ def index(request):
             while queryCheck == True:  # If a plan with the same name exists, append '_copy' until a unique name is found.
                 inputName = inputName+'_copy'
                 queryCheck = ProductionPlan.objects.filter(name=inputName).exists()
-            ProductionPlan.objects.create(name=inputName, username=request.user, length=inputMonthRange)  # Create a new ProductionPlan.
+            ProductionPlan.objects.create(name=inputName, username=request.user.id, length=inputMonthRange)  # Create a new ProductionPlan.
             
             return redirect('get-plan-list')  # Redirect to the plan list page.
         else:
@@ -35,12 +103,10 @@ def index(request):
     if request.user.is_authenticated:
         # Check if there are any production plans with length >= 3
         plan_for_third_month_exists = ProductionPlan.objects.filter(
-            username=request.user, 
+            username=request.user.id, 
             length__gte=3,
             month3_date__isnull=False
         ).exists()
-
-
     else:
         plan_for_third_month_exists = "None"
     
@@ -54,16 +120,17 @@ def index(request):
         'third_month': third_month if not plan_for_third_month_exists else None
     })  # Render the index page.
 
-@login_required(login_url='/login/')  # Require login to access this view.
+# @login_required(login_url='/login/')  # Require login to access this view.
+@custom_login_required
 def get_plan_list(request):
     searchColumn = request.GET.get("column")  # Get the search column from the GET request.
     searchWord = request.GET.get("search")  # Get the search word from the GET request.
     if searchColumn == "name" and searchWord:  # Filter plans by name if the search column is 'name'.
-        planList = ProductionPlan.objects.filter(username=request.user, name__icontains=searchWord).order_by('length')
+        planList = ProductionPlan.objects.filter(username=request.user.id, name__icontains=searchWord).order_by('length')
     elif searchColumn == "length" and searchWord:  # Filter plans by length if the search column is 'length'.
-        planList = ProductionPlan.objects.filter(username=request.user, length=searchWord).order_by('length')
+        planList = ProductionPlan.objects.filter(username=request.user.id, length=searchWord).order_by('length')
     else:  # If no search parameters are provided, return all plans for the user.
-        planList = ProductionPlan.objects.filter(username=request.user).order_by('length')
+        planList = ProductionPlan.objects.filter(username=request.user.id).order_by('length')
     paginator = Paginator(planList, 5)  # Show 5 plans per page.
 
     page_number = request.GET.get("page")  # Get the page number from the GET request.
@@ -80,12 +147,15 @@ def about(request):
     return render(request, "main/about.html")  # Render the about page.
 
 def logout_view(request):
-    logout(request)  # Log the user out.
-    return redirect('home')  # Redirect to the login page.
+    # logout(request)  # Log the user out.
+    # return redirect('home')  # Redirect to the login page.
+    request.session.flush()  # Clear session data
+    return redirect("login")
 
-@login_required(login_url='/login/')  # Require login to access this view.
+# @login_required(login_url='/login/')  # Require login to access this view.
+@custom_login_required
 def delete_plan(request, plan_ID):
-    plan = ProductionPlan.objects.filter(id=plan_ID, username=request.user)  # Get the plan to be deleted.
+    plan = ProductionPlan.objects.filter(id=plan_ID, username=request.user.id)  # Get the plan to be deleted.
     plan.delete()  # Delete the plan.
     return redirect('get-plan-list')  # Redirect to the plan list page.
 
@@ -97,7 +167,8 @@ def initiate_sensitivity_analysis(request, plan_ID):
     plan = ProductionPlan.objects.filter(id=plan_ID).values()  # Get the plan details.
     return sensitivity_analysis(request, plan_ID, plan[0]["length"])  # Call the sensitivity_analysis function with the plan details.
 
-@login_required(login_url='/login/')  # Require login to access this view.
+# @login_required(login_url='/login/')  # Require login to access this view.
+@custom_login_required
 def input_plan_variables(request, plan_ID):
     if request.method == "POST":  # Check if the request method is POST.
         inputDemand1 = request.POST.get('demand1')  # Get the demand for month 1 from the POST request.
@@ -822,7 +893,8 @@ style_green = xlwt.easyxf(" pattern: fore-colour 0x11, pattern solid;")  # Solid
 # Define a red color style.
 style_red = xlwt.easyxf(" pattern: fore-colour 0x0A, pattern solid;")  # Solid red background color
 
-@login_required(login_url='/login/')  # Ensure the user is logged in before accessing the view.
+# @login_required(login_url='/login/')  # Ensure the user is logged in before accessing the view.
+@custom_login_required
 def generate_report(request, plan_ID):
     response = HttpResponse(content_type='application/vnd.ms-excel')  # Set response content type to Excel file.
     response['Content-Disposition'] = 'attachment;filename=viewOptimized.xls'  # Set the content-disposition to attachment for file download.
@@ -1029,7 +1101,8 @@ def generate_report(request, plan_ID):
     return response  # Return the HTTP response.
 
 # Require login to access this view, redirect to login page if not authenticated
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
+@custom_login_required
 def create_user(request):
     # Check if the request method is POST
     if request.method == "POST":
@@ -1090,7 +1163,8 @@ def register(request):
     return render(request, "main/register.html")
 
 # Require login to access this view, redirect to login page if not authenticated
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
+@custom_login_required
 def read_user(request):
     # Retrieve all user data from the database
     userData = User.objects.all().values
@@ -1098,7 +1172,8 @@ def read_user(request):
     return render(request, 'main/users/read.html', {'userData': userData})
 
 # Require login to access this view, redirect to login page if not authenticated
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
+@custom_login_required
 def update_user(request, id):
     # Retrieve user data for the given id
     userData = User.objects.get(id=id)
@@ -1134,28 +1209,59 @@ def update_user(request, id):
     return render(request, "main/users/update.html", {"userData": userData})
 
 # Require login to access this view, redirect to login page if not authenticated
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
+# @custom_login_required
+# def edit_profile(request, id):
+#     # Retrieve user data for the given id
+#     userData = User.objects.get(id=id)
+#     # Check if the request method is POST
+#     if request.method == "POST":
+#         # Retrieve the first name from the POST data
+#         first_name = request.POST.get("first_name")
+#         # Retrieve the last name from the POST data
+#         last_name = request.POST.get("last_name")
+#         # Update the user data
+#         userData.first_name = first_name
+#         userData.last_name = last_name
+#         # Save the updated user data to the database
+#         userData.save()
+#         # Redirect to the home view after successful update
+#         return redirect("home")
+#     # If request method is not POST, render the edit profile form
+#     return render(request, "main/edit_profile.html", {"userData": userData})
+
+@custom_login_required
 def edit_profile(request, id):
-    # Retrieve user data for the given id
-    userData = User.objects.get(id=id)
-    # Check if the request method is POST
+    # Attempt to retrieve the user using email or another string-compatible field
+    try:
+        userData = User.objects.get(email=id)  # Replace 'email' with the correct field if needed
+    except User.DoesNotExist:
+        return HttpResponse("User not found", status=400)
+    except ValueError:
+        return HttpResponse("Invalid identifier format", status=400)
+
     if request.method == "POST":
-        # Retrieve the first name from the POST data
+        # Retrieve the first name and last name from the POST data
         first_name = request.POST.get("first_name")
-        # Retrieve the last name from the POST data
         last_name = request.POST.get("last_name")
+
         # Update the user data
         userData.first_name = first_name
         userData.last_name = last_name
+
         # Save the updated user data to the database
         userData.save()
-        # Redirect to the home view after successful update
+
+        # Redirect to the home view after a successful update
         return redirect("home")
-    # If request method is not POST, render the edit profile form
+
+    # If the request method is not POST, render the edit profile form
     return render(request, "main/edit_profile.html", {"userData": userData})
 
+
 # Require login to access this view, redirect to login page if not authenticated
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
+@custom_login_required
 def delete_user(request, id):
     # Retrieve user data for the given id
     userData = User.objects.get(id=id)
