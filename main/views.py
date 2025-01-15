@@ -101,8 +101,12 @@ def index(request):
     
     # Check if the user has any plans for the 3rd month (demand3 > 0)
     if request.user.is_authenticated:
-        # plan_for_third_month_exists = ProductionPlan.objects.filter(username=request.user).exclude(demand3=0).exists()
-        plan_for_third_month_exists = ProductionPlan.objects.filter(username=request.user.id).exclude(demand3=0).exists()
+        # Check if there are any production plans with length >= 3
+        plan_for_third_month_exists = ProductionPlan.objects.filter(
+            username=request.user.id, 
+            length__gte=3,
+            month3_date__isnull=False
+        ).exists()
     else:
         plan_for_third_month_exists = "None"
     
