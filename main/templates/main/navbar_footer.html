@@ -57,10 +57,10 @@
       <div class="flex items-center">
         <div class="flex items-center ms-3">
           <!-- Check if user is authenticated -->
-          {% if user.is_authenticated %}
-          <div>
+          {% if token_user %}
+          <div class="relative">
             <!-- User menu button -->
-            <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
+            <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user" data-dropdown-placement="bottom-end">
               <span class="sr-only">Open user menu</span>
               <!-- User avatar -->
               <img class="w-8 h-8 rounded-full" src="{% static 'img/avatar.png' %}" alt="user photo">
@@ -71,17 +71,17 @@
             <div class="px-4 py-3" role="none">
               <!-- Display user's name -->
               <p class="text-sm text-gray-900 dark:text-white" role="none">
-                {{ user.first_name }}&nbsp;{{ user.last_name }}
+                {{ token_user.name }}
               </p>
               <!-- Display user's email -->
               <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                {{ user.email }}
+                {{ token_user.email }}
               </p>
             </div>
             <ul class="py-1" role="none">
               <!-- Link to edit profile -->
               <li>
-                <a href="{% url 'edit-profile' user.id %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Edit Profile</a>
+                <a href="{% url 'edit-profile' token_user.email %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Edit Profile</a>
               </li>
               <!-- Link to logout -->
               <li>
@@ -96,13 +96,13 @@
     </div>
   </div>
 </nav>
-{% if user.is_authenticated %}
+{% if token_user %}
 <!-- Start of sidebar section for authenticated users -->
 <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 w-60 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
       <ul class="space-y-2 font-medium">
-        {% if user.is_superuser %}  
-        <!-- Display the following item only if the user is a superuser -->
+        {% if token_user.role == "SysAdmin" %}
+        <!-- Display the following item only if the user is a SysAdmin -->
          <li>
             <a id="userListLink" href="{% url 'read-user' %}" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
               <!-- Icon for managing users -->
@@ -148,7 +148,7 @@
 </aside>
 {% endif %}
 
-{% if user.is_authenticated %}
+{% if token_user %}
 <!-- Main content for authenticated users -->
 <div class="p-4 mt-14 sm:ml-60">
   {% block content %}
