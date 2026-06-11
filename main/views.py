@@ -8,7 +8,7 @@ from pulp import *  # Import PuLP library for optimization.
 from .forms import *  # Import all forms from the current directory.
 from .models import ProductionPlan  # Import ProductionPlan model from the current directory.
 import xlwt  # Import xlwt for creating Excel files.
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from io import BytesIO  # Import BytesIO for in-memory byte streams.
 from django.conf import settings  # Import settings from Django configuration.
@@ -16,10 +16,12 @@ from django.contrib import messages  # Import messages for displaying notificati
 import plotly.graph_objects as go  # Import Plotly for creating graphs.
 from django.core.mail import send_mail  # Import send_mail function for sending emails.
 from mysite.middleware.authentication import authenticate_request
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 import requests
+import jwt
 
 def login(request):
     if request.method == "POST":
@@ -1249,3 +1251,64 @@ def delete_user(request, id):
     userData.delete()
     # Redirect to the read-user view after successful deletion
     return redirect("read-user")
+
+@csrf_exempt
+def retrieve_workforce_data(request):
+    # Handle CORS preflight
+    if request.method == 'OPTIONS':
+        response = JsonResponse({})
+        response['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+        response['Access-Control-Allow-Headers'] = 'Authorization, X-User-Email, Content-Type'
+        response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        response['Access-Control-Allow-Credentials'] = 'true'
+        return response
+
+    # Validate PowerHR JWT from Authorization header
+    auth_header = request.headers.get('Authorization', '')
+    user_email = request.headers.get('X-User-Email', '')
+
+    if not auth_header or not user_email:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    token = auth_header.split(' ')[1] if ' ' in auth_header else ''
+    secret_key = getattr(settings, 'POWERHR_JWT_SECRET', None)
+    if secret_key:
+        try:
+            jwt.decode(token, secret_key, algorithms=['HS256'])
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+            return JsonResponse({'error': 'Invalid token'}, status=401)
+
+    data_type = request.GET.get('type', 'termination')
+    field_prefix = 'hiredTemporary' if data_type == 'rehire' else 'firedTemporary'
+
+    # Fetch filled plans including their actual month dates and hired/fired counts
+    date_fields = [f'month{i}_date' for i in range(1, 13)]
+    count_fields = [f'{field_prefix}{i}' for i in range(1, 13)]
+    plans = list(ProductionPlan.objects.filter(username=user_email, filled=True).values(
+        'length', *date_fields, *count_fields
+    ))
+
+    # Aggregate counts by the plan's actual calendar month (month1_date, month2_date, etc.)
+    month_totals = {}
+    month_order = {}
+    for plan in plans:
+        num_months = plan.get('length', 0)
+        for i in range(1, num_months + 1):
+            month_date = plan.get(f'month{i}_date')
+            count = plan.get(f'{field_prefix}{i}', 0) or 0
+            if month_date:
+                month_label = month_date.strftime('%b %Y')
+                month_totals[month_label] = month_totals.get(month_label, 0) + count
+                if month_label not in month_order:
+                    month_order[month_label] = month_date
+
+    # Return months sorted chronologically
+    sorted_months = sorted(month_order.keys(), key=lambda m: month_order[m])
+    workforce_data = [{'month': m, 'count_this_month': month_totals[m]} for m in sorted_months]
+
+    response = JsonResponse({'type': data_type, 'workforce_data': workforce_data})
+    response['Access-Control-Allow-Origin'] = request.headers.get('Origin', '*')
+    response['Access-Control-Allow-Credentials'] = 'true'
+    response['Access-Control-Allow-Headers'] = 'Authorization, X-User-Email, Content-Type'
+    return response
+

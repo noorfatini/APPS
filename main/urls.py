@@ -49,4 +49,6 @@ urlpatterns = [
     path('initiate_sensitivity_analysis/<plan_ID>', views.initiate_sensitivity_analysis, name='initiate_sensitivity_analysis'),
     # URL for generating a report for a production plan, includes a dynamic 'plan_ID' parameter and names the URL pattern 'generate_report'
     path('generate_report/<plan_ID>', views.generate_report, name='generate_report'),
+    path('retrieve-workforce-data', views.retrieve_workforce_data, name='retrieve-workforce-data'),
+    path('retrieve-workforce-data/', views.retrieve_workforce_data),
 ]
