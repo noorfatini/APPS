@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect  # Import functions for rendering templates and handling redirects.
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger  # Import pagination classes.
-from django.http import HttpResponse, HttpResponseRedirect  # Import HTTP response classes.
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect  # Import HTTP response classes.
 from main import models  # Import models from the main app.
 from django.contrib.auth.decorators import login_required  # Import decorator for requiring login.
 from django.contrib.auth import logout  # Import logout function.
@@ -20,97 +20,75 @@ from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 import requests
-from .decorators import custom_login_required
 
 def login(request):
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        # Send login request to PowerHR
-        powerhr_login_url = "http://[::1]:3000/auth/login"  # Replace with your PowerHR login endpoint
-        response = requests.post(powerhr_login_url, json={"email": email, "password": password})
+        powerhr_login_url = "http://[::1]:3000/auth/login"
+        try:
+            response = requests.post(powerhr_login_url, json={"email": email, "password": password}, timeout=10)
+        except requests.exceptions.ConnectionError:
+            return render(request, "main/login.html", {"error": "Cannot connect to authentication server"})
 
         if response.status_code == 200:
-            # Parse the response from PowerHR
             data = response.json()
-            print("Response from PowerHR:", data)  # Debugging line
-            
-            token = data.get("token")  # JWT token
-            user_data = data.get("user")  # User details from PowerHR
+            token = data.get("token")
+            user_data = data.get("user")
 
-            if not user_data or "role" not in user_data:
-                return render(request, "main/login.html", {"error": "Invalid PowerHR response"})
+            if not user_data:
+                return render(request, "main/login.html", {"error": "Invalid response from authentication server"})
 
-            # Check the user's role
-            user_role = user_data.get("role")  # Assuming PowerHR includes a "role" field in its response
-            if user_role == "Applicant":
-                # If user is not an Employee, show error popup
-                return render(request, "main/login.html", {"error": "Access restricted to Employees only"})
+            user_role = user_data.get("role")
 
-            is_superuser = user_role == "Admin"
-            is_staff = is_superuser or user_role in ["HR", "Manager"]
+            # Only HR and SysAdmin can access APPS
+            allowed_roles = ["HR", "SysAdmin"]
+            if user_role not in allowed_roles:
+                return render(request, "main/login.html", {"error": "You don't have permission to access APPS"})
 
-            # Set cookies for JWT token and user details
-            # http_response = HttpResponseRedirect("/")  # Redirect to the home page
-            # http_response.set_cookie("Authorization", f"Bearer {token}")
-            # http_response.set_cookie("user_email", user_data["email"])
-            # http_response.set_cookie("user_name", f"{user_data['firstName']} {user_data['lastName']}")
-            # http_response.set_cookie("user_role", user_role)
+            http_response = HttpResponseRedirect("/get-plan-list")
+            http_response.set_cookie("Authorization", f"Bearer {token}")
+            http_response.set_cookie("user_email", user_data["email"])
+            http_response.set_cookie("user_name", f"{user_data['firstName']} {user_data['lastName']}")
+            http_response.set_cookie("user_role", user_role or "")
 
-            # return http_response
+            return http_response
 
-            # Store user details in the session
-            request.session["is_authenticated"] = True
-            request.session["user_token"] = token
-            request.session["user_email"] = user_data["email"]
-            request.session["user_name"] = f"{user_data['firstName']} {user_data['lastName']}"
-            request.session["user_role"] = user_role
-            request.session["user_id"] = user_data.get("_id")
-            request.session["is_active"] = True  # Set to True for active users
-            request.session["is_staff"] = is_staff
-            request.session["is_superuser"] = is_superuser
+        elif response.status_code == 404:
+            return render(request, "main/login.html", {"error": "User does not exist in Power Recruiter"})
 
-            # Redirect to the home page
-            # return redirect("home" if not is_superuser else "/admin/")
-            return redirect("/admin/" if is_superuser else "home")
-        
+        elif response.status_code == 401:
+            return render(request, "main/login.html", {"error": "Invalid credentials."})
+
         else:
-            # Handle invalid credentials
-            #return JsonResponse({"error": "Invalid credentials"}, status=401)
-            return render(request, "main/login.html", {"error": "Invalid credentials"})
+            return render(request, "main/login.html", {"error": "Authentication server is temporarily unavailable. Please try again."})
 
     return render(request, "main/login.html")
 
-def index(request):    
-    print(f"DEBUG: User ID: {request.user.id}, Authenticated: {request.user.is_authenticated}")
-
+@authenticate_request
+def index(request):
     if request.method == "POST":  # Check if the request method is POST.
-        if request.user.is_authenticated:  # Check if the user is authenticated.
+        if request.token_user:  # Check if the token user is authenticated via middleware.
             inputName = str(request.POST.get('name'))  # Get the input name from the POST request.
             inputMonthRange = int(request.POST.get('length'))  # Get the input month range from the POST request.
             queryCheck = ProductionPlan.objects.filter(name=inputName).exists()  # Check if a ProductionPlan with the same name exists.
             while queryCheck == True:  # If a plan with the same name exists, append '_copy' until a unique name is found.
                 inputName = inputName+'_copy'
                 queryCheck = ProductionPlan.objects.filter(name=inputName).exists()
-            ProductionPlan.objects.create(name=inputName, username=request.user.id, length=inputMonthRange)  # Create a new ProductionPlan.
-            
+            ProductionPlan.objects.create(name=inputName, username=request.token_user['email'], length=inputMonthRange)  # Create a new ProductionPlan.
+
             return redirect('get-plan-list')  # Redirect to the plan list page.
         else:
             return redirect('login')  # Redirect to the login page if the user is not authenticated.
-    
-    # Check if the user has any plans for the 3rd month (demand3 > 0)
-    if request.user.is_authenticated:
-        # Check if there are any production plans with length >= 3
-        plan_for_third_month_exists = ProductionPlan.objects.filter(
-            username=request.user.id, 
-            length__gte=3,
-            month3_date__isnull=False
-        ).exists()
-    else:
-        plan_for_third_month_exists = "None"
-    
-    # Check if the user has any plans for the 3rd month (month3_date is null)
+
+    # Check if the user has any plans for the 3rd month
+    plan_for_third_month_exists = ProductionPlan.objects.filter(
+        username=request.token_user['email'],
+        length__gte=3,
+        month3_date__isnull=False
+    ).exists()
+
     if not plan_for_third_month_exists:
         third_month = datetime.now() + relativedelta(months=2)  # Get the date 3 months from now.
         third_month = third_month.strftime('%B')  # Extract the date part if you don't need the time.
@@ -121,16 +99,16 @@ def index(request):
     })  # Render the index page.
 
 # @login_required(login_url='/login/')  # Require login to access this view.
-@custom_login_required
+@authenticate_request
 def get_plan_list(request):
     searchColumn = request.GET.get("column")  # Get the search column from the GET request.
     searchWord = request.GET.get("search")  # Get the search word from the GET request.
     if searchColumn == "name" and searchWord:  # Filter plans by name if the search column is 'name'.
-        planList = ProductionPlan.objects.filter(username=request.user.id, name__icontains=searchWord).order_by('length')
+        planList = ProductionPlan.objects.filter(username=request.token_user['email'], name__icontains=searchWord).order_by('length')
     elif searchColumn == "length" and searchWord:  # Filter plans by length if the search column is 'length'.
-        planList = ProductionPlan.objects.filter(username=request.user.id, length=searchWord).order_by('length')
+        planList = ProductionPlan.objects.filter(username=request.token_user['email'], length=searchWord).order_by('length')
     else:  # If no search parameters are provided, return all plans for the user.
-        planList = ProductionPlan.objects.filter(username=request.user.id).order_by('length')
+        planList = ProductionPlan.objects.filter(username=request.token_user['email']).order_by('length')
     paginator = Paginator(planList, 5)  # Show 5 plans per page.
 
     page_number = request.GET.get("page")  # Get the page number from the GET request.
@@ -147,15 +125,17 @@ def about(request):
     return render(request, "main/about.html")  # Render the about page.
 
 def logout_view(request):
-    # logout(request)  # Log the user out.
-    # return redirect('home')  # Redirect to the login page.
-    request.session.flush()  # Clear session data
-    return redirect("login")
+    response = HttpResponseRedirect("/login")
+    response.delete_cookie("Authorization")
+    response.delete_cookie("user_email")
+    response.delete_cookie("user_name")
+    response.delete_cookie("user_role")
+    return response
 
 # @login_required(login_url='/login/')  # Require login to access this view.
-@custom_login_required
+@authenticate_request
 def delete_plan(request, plan_ID):
-    plan = ProductionPlan.objects.filter(id=plan_ID, username=request.user.id)  # Get the plan to be deleted.
+    plan = ProductionPlan.objects.filter(id=plan_ID, username=request.token_user['email'])  # Get the plan to be deleted.
     plan.delete()  # Delete the plan.
     return redirect('get-plan-list')  # Redirect to the plan list page.
 
@@ -168,7 +148,7 @@ def initiate_sensitivity_analysis(request, plan_ID):
     return sensitivity_analysis(request, plan_ID, plan[0]["length"])  # Call the sensitivity_analysis function with the plan details.
 
 # @login_required(login_url='/login/')  # Require login to access this view.
-@custom_login_required
+@authenticate_request
 def input_plan_variables(request, plan_ID):
     if request.method == "POST":  # Check if the request method is POST.
         inputDemand1 = request.POST.get('demand1')  # Get the demand for month 1 from the POST request.
@@ -894,7 +874,7 @@ style_green = xlwt.easyxf(" pattern: fore-colour 0x11, pattern solid;")  # Solid
 style_red = xlwt.easyxf(" pattern: fore-colour 0x0A, pattern solid;")  # Solid red background color
 
 # @login_required(login_url='/login/')  # Ensure the user is logged in before accessing the view.
-@custom_login_required
+@authenticate_request
 def generate_report(request, plan_ID):
     response = HttpResponse(content_type='application/vnd.ms-excel')  # Set response content type to Excel file.
     response['Content-Disposition'] = 'attachment;filename=viewOptimized.xls'  # Set the content-disposition to attachment for file download.
@@ -1102,7 +1082,7 @@ def generate_report(request, plan_ID):
 
 # Require login to access this view, redirect to login page if not authenticated
 # @login_required(login_url='/login/')
-@custom_login_required
+@authenticate_request
 def create_user(request):
     # Check if the request method is POST
     if request.method == "POST":
@@ -1164,7 +1144,7 @@ def register(request):
 
 # Require login to access this view, redirect to login page if not authenticated
 # @login_required(login_url='/login/')
-@custom_login_required
+@authenticate_request
 def read_user(request):
     # Retrieve all user data from the database
     userData = User.objects.all().values
@@ -1173,7 +1153,7 @@ def read_user(request):
 
 # Require login to access this view, redirect to login page if not authenticated
 # @login_required(login_url='/login/')
-@custom_login_required
+@authenticate_request
 def update_user(request, id):
     # Retrieve user data for the given id
     userData = User.objects.get(id=id)
@@ -1210,7 +1190,7 @@ def update_user(request, id):
 
 # Require login to access this view, redirect to login page if not authenticated
 # @login_required(login_url='/login/')
-# @custom_login_required
+# @authenticate_request
 # def edit_profile(request, id):
 #     # Retrieve user data for the given id
 #     userData = User.objects.get(id=id)
@@ -1230,7 +1210,7 @@ def update_user(request, id):
 #     # If request method is not POST, render the edit profile form
 #     return render(request, "main/edit_profile.html", {"userData": userData})
 
-@custom_login_required
+@authenticate_request
 def edit_profile(request, id):
     # Attempt to retrieve the user using email or another string-compatible field
     try:
@@ -1261,7 +1241,7 @@ def edit_profile(request, id):
 
 # Require login to access this view, redirect to login page if not authenticated
 # @login_required(login_url='/login/')
-@custom_login_required
+@authenticate_request
 def delete_user(request, id):
     # Retrieve user data for the given id
     userData = User.objects.get(id=id)

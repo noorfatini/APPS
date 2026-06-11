@@ -61,7 +61,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware', # Handles authentication
     'django.contrib.messages.middleware.MessageMiddleware', # Manages user messages
     'django.middleware.clickjacking.XFrameOptionsMiddleware', # Prevents clickjacking attacks
-    'mysite.middleware.auth_middleware.AuthenticationMiddleware',
 ]
 
 # The URL configuration for this project
@@ -79,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request', # Adds request object to context
                 'django.contrib.auth.context_processors.auth', # Adds user authentication context
                 'django.contrib.messages.context_processors.messages', # Adds message framework context
+                'mysite.middleware.authentication.token_user_context',  # JWT cookie auth context
             ],
         },
     },
