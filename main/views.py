@@ -31,7 +31,7 @@ def login(request):
 
         powerhr_login_url = config('POWERHR_SERVER_URL', default="http://[::1]:3000") + "/auth/login"
         try:
-            response = requests.post(powerhr_login_url, json={"email": email, "password": password}, timeout=10)
+            response = requests.post(powerhr_login_url, json={"email": email, "password": password}, timeout=30)
         except requests.exceptions.ConnectionError:
             return render(request, "main/login.html", {"error": "Cannot connect to authentication server"})
 
