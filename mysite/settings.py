@@ -15,10 +15,15 @@ from pathlib import Path
 from decouple import config
 from decouple import Config, RepositoryEnv
 from pathlib import Path
+import os
 
 # Define the base directory of the project, typically the parent directory of the current file
 BASE_DIR = Path(__file__).resolve().parent.parent
-config = Config(RepositoryEnv(BASE_DIR / '.env'))
+# config = Config(RepositoryEnv(BASE_DIR / '.env'))
+if os.path.exists(BASE_DIR / '.env'):
+    config = Config(RepositoryEnv(BASE_DIR / '.env'))
+else:
+    from decouple import config
 print(f"DEBUG: POWERHR_JWT_SECRET from .env: {config('POWERHR_JWT_SECRET', default='NOT SET')}")
 
 # Quick-start development settings - unsuitable for production
@@ -35,7 +40,7 @@ DEBUG = True
 
 # List of host/domain names that this Django site can serve
 # Ensure that this includes the host where the app is deployed
-ALLOWED_HOSTS = ["127.0.0.1","muhammadiqbalhabibie.pythonanywhere.com", "noorfatinifarhah.pythonanywhere.com"]
+ALLOWED_HOSTS = ["127.0.0.1","muhammadiqbalhabibie.pythonanywhere.com", "noorfatinifarhah.pythonanywhere.com", "apps-eomx.onrender.com"]
 
 # Application definition
 
