@@ -35,7 +35,7 @@ DEBUG = True
 
 # List of host/domain names that this Django site can serve
 # Ensure that this includes the host where the app is deployed
-ALLOWED_HOSTS = ["127.0.0.1","muhammadiqbalhabibie.pythonanywhere.com"]
+ALLOWED_HOSTS = ["127.0.0.1","muhammadiqbalhabibie.pythonanywhere.com", "noorfatinifarhah.pythonanywhere.com"]
 
 # Application definition
 
