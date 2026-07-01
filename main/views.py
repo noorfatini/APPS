@@ -20,6 +20,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login as django_login
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from decouple import config
 import requests
 import jwt
 
@@ -28,7 +29,7 @@ def login(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
 
-        powerhr_login_url = "http://[::1]:3000/auth/login"
+        powerhr_login_url = config('POWERHR_SERVER_URL', default="http://[::1]:3000") + "/auth/login"
         try:
             response = requests.post(powerhr_login_url, json={"email": email, "password": password}, timeout=10)
         except requests.exceptions.ConnectionError:
@@ -572,7 +573,9 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
             step_size = min(inputProdPermanent, inputProdTemporary)  # Define the perturbation step size
             aiDemand = 0  # Initialize allowable increase in demand
             adDemand = 0  # Initialize allowable decrease in demand
-            step_size_holding = 0.1 
+            aiHoldingCostMonth = 0.0  # Allowable increase in holding cost for this month
+            adHoldingCostMonth = 0.0  # Allowable decrease in holding cost for this month
+            step_size_holding = 0.1
             iteration = 0  # Initialize iteration counter for increase perturbation
             
             while iteration < 100:  # Perform iterative perturbation to increase demand
@@ -620,9 +623,9 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 if model.status == 1:  # Check if the optimal solution is found
                     if value(model.objective) != original_cost:  # If the optimal cost changes
                         aiDemand = step_size * iteration  # Store the allowable increase in demand
-                        aiHoldingCost.append(step_size_holding * iteration)
+                        aiHoldingCostMonth = round(step_size_holding * iteration, 1)
                         break
-                
+
                 iteration += 1  # Increment the iteration counter
             inputCostHoldingUnit = original_holding_cost
             inputDemands[loop-1] = original_demand  # Reset the demand to its original value
@@ -673,21 +676,20 @@ def sensitivity_analysis(request, plan_ID, num_months):  # Function definition w
                 if model.status == 1:  # Check if the optimal solution is found
                     if value(model.objective) != original_cost:  # If the optimal cost changes
                         adDemand = step_size * iteration  # Store the allowable decrease in demand
-                        adHoldingCost.append(step_size_holding * iteration)
+                        adHoldingCostMonth = round(step_size_holding * iteration, 1)
                         break
-                
+
                 iteration += 1  # Increment the iteration counter
-            inputCostHoldingUnit = original_holding_cost 
+            inputCostHoldingUnit = original_holding_cost
             inputDemands[loop-1] = original_demand  # Reset the demand to its original value
             aiDemands.append(aiDemand)  # Append the allowable increase in demand to the list
             adDemands.append(adDemand)  # Append the allowable decrease in demand to the list
             increasedDemands.append(inputDemands[loop-1] + aiDemand)  # Append the increased demand to the list
             decreasedDemands.append(inputDemands[loop-1] - adDemand)  # Append the decreased demand to the list
-            aiHoldingCost.append(aiDemand)  # Store the allowable increase for holding costs
-            adHoldingCost.append(adDemand)   # Store the allowable decrease for holding costs
-            # Calculate increased and decreased holding costs
-            increasedHoldingCost.append(inputCostHoldingUnit + aiHoldingCost[loop- 1])  # current cost plus allowable increase
-            decreasedHoldingCost.append(inputCostHoldingUnit - adHoldingCost[loop-1])  # current cost minus allowable decrease
+            aiHoldingCost.append(aiHoldingCostMonth)
+            adHoldingCost.append(adHoldingCostMonth)
+            increasedHoldingCost.append(round(original_holding_cost + aiHoldingCostMonth, 1))
+            decreasedHoldingCost.append(round(original_holding_cost - adHoldingCostMonth, 1))
     # Render the sensitivity analysis results in the template
         return render(request, "main/sensitivity.html", {
             'detail': detail, 
