@@ -60,6 +60,7 @@ INSTALLED_APPS = [
 # List of middleware used by Django to process requests and responses
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',     # Provides security enhancements
+    'whitenoise.middleware.WhiteNoiseMiddleware',        # Serves static files efficiently
     'django.contrib.sessions.middleware.SessionMiddleware', # Manages sessions
     'django.middleware.common.CommonMiddleware',         # Adds various common middleware features
     'django.middleware.csrf.CsrfViewMiddleware',          # Provides Cross Site Request Forgery protection
@@ -129,6 +130,8 @@ USE_TZ = True            # Enable timezone support
 # Static files settings
 # Configuration for serving static files (CSS, JavaScript, images)
 STATIC_URL = 'static/'  # URL for static files
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind" # Allowed template packs for crispy forms
 CRISPY_TEMPLATE_PACK = "tailwind"          # Template pack to use for crispy forms
 
