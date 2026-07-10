@@ -439,12 +439,12 @@
                             <input required min="0" type="number" step="0.1" value={{inputCostHoldingUnit}} name="costHoldingUnit" id="costHoldingUnit" placeholder="Inventory Holding cost"~>
                         </td>
                         {% comment %} <td><input type="number" name="costHoldingUnit" step="0.01" value="{{ inputCostHoldingUnit  }}" required></td> {% endcomment %}
-                        <td class="p-2 border border-gray-200 dark:border-gray-700 
-                            {% if aiHoldingCost|length > 0 and aiHoldingCost.0 != 0 %}highlight-increase{% endif %}">
+                        <td class="p-2 border border-gray-200 dark:border-gray-700
+                            {% if aiHoldingCost.0 != 0 %}highlight-increase{% endif %}">
                             {{ aiHoldingCost.0 }} ({{ increasedHoldingCost }})
                         </td>
-                        <td class="p-2 border border-gray-200 dark:border-gray-700 
-                            {% if adHoldingCost|length > 0 and adHoldingCost.0 != 0 %}highlight-decrease{% endif %}">
+                        <td class="p-2 border border-gray-200 dark:border-gray-700
+                            {% if adHoldingCost.0 != 0 %}highlight-decrease{% endif %}">
                             {{ adHoldingCost.0 }} ({{ decreasedHoldingCost }})
                         </td>
 
